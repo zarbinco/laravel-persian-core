@@ -85,6 +85,12 @@ The default normalization configuration includes:
         'require_iranian_bin' => false,
     ],
 ],
+
+'developer_experience' => [
+    'str_macros' => [
+        'enabled' => false,
+    ],
+],
 ```
 
 `text.display` controls display-friendly cleanup such as ellipsis normalization and punctuation spacing.
@@ -110,6 +116,8 @@ The default normalization configuration includes:
 `money.rial_to_toman_rate` controls conversion helpers. By default, 1 toman equals 10 rial.
 
 `validation` controls lightweight validation-rule behavior. Empty values pass by default; use Laravel's `required` rule when a field must be present.
+
+`developer_experience.str_macros.enabled` is reserved for optional Str macro support and is disabled by default.
 
 ## Usage
 
@@ -279,6 +287,16 @@ Persian::mobile('09121234567')->mask();
 // 0912***4567
 ```
 
+The default mobile mask can be configured with `mobile.iran.mask_pattern`. Patterns are for 11-digit national mobile numbers and must be 11 characters long with one or more `*` characters.
+
+```php
+'mobile' => [
+    'iran' => [
+        'mask_pattern' => '09*******67',
+    ],
+],
+```
+
 ### Money parsing and formatting
 
 Money support is parsing and formatting only. Phase 4 supports `toman` and `rial`, integer conversion between them, and configurable labels and display digits.
@@ -353,6 +371,22 @@ Validation boundaries:
 - `IranianSheba` checks format and IBAN checksum, not bank account ownership.
 - `IranianCardNumber` checks shape, Luhn by default, and optionally a small Iranian BIN list, not card ownership.
 - `PersianMoneyAmount` checks shape and parseability, not business min/max rules.
+
+### Artisan commands
+
+The package includes a few safe, idempotent Artisan commands for developer experience:
+
+```bash
+php artisan persian-core:install
+php artisan persian-core:doctor
+php artisan persian-core:about
+```
+
+`persian-core:install` publishes the package config and translations. Use `--force` to overwrite existing published files.
+
+`persian-core:doctor` checks common setup and configuration mistakes, including digit mode values, search ZWNJ mode, money settings, validation toggles, translation loading, and optional `ext-intl` availability.
+
+`persian-core:about` prints a quick package summary, PHP/Laravel versions, active core config values, available modules, and available package commands.
 
 ## Not Included In Core
 

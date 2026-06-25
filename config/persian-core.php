@@ -72,4 +72,10 @@ return [
             'require_iranian_bin' => false,
         ],
     ],
+
+    'developer_experience' => [
+        'str_macros' => [
+            'enabled' => false,
+        ],
+    ],
 ];

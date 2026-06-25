@@ -3,6 +3,9 @@
 namespace Zarbinco\PersianCore;
 
 use Illuminate\Support\ServiceProvider;
+use Zarbinco\PersianCore\Commands\AboutCommand;
+use Zarbinco\PersianCore\Commands\DoctorCommand;
+use Zarbinco\PersianCore\Commands\InstallCommand;
 use Zarbinco\PersianCore\Formatters\MobileFormatter;
 use Zarbinco\PersianCore\Formatters\MoneyFormatter;
 use Zarbinco\PersianCore\Formatters\NumberFormatter;
@@ -97,5 +100,13 @@ class PersianCoreServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/lang' => lang_path('vendor/persian-core'),
         ], 'persian-core-lang');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallCommand::class,
+                DoctorCommand::class,
+                AboutCommand::class,
+            ]);
+        }
     }
 }
