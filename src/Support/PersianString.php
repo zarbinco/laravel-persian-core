@@ -16,6 +16,21 @@ class PersianString
         return $this->normalizer->normalize($this->value);
     }
 
+    public function forStorage(): string
+    {
+        return $this->normalizer->forStorage($this->value);
+    }
+
+    public function forDisplay(): string
+    {
+        return $this->normalizer->forDisplay($this->value);
+    }
+
+    public function forSearch(): string
+    {
+        return $this->normalizer->forSearch($this->value);
+    }
+
     public function value(): string
     {
         return $this->stringValue();

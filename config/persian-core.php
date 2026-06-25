@@ -8,6 +8,18 @@ return [
         'remove_tatweel' => true,
         'normalize_whitespace' => true,
         'remove_invisible_characters' => true,
+
+        'display' => [
+            'normalize_ellipsis' => true,
+            'normalize_punctuation_spacing' => true,
+        ],
+
+        'search' => [
+            'zwnj' => 'space',
+            'remove_punctuation' => true,
+            'normalize_arabic_alef' => true,
+            'normalize_teh_marbuta' => true,
+        ],
     ],
 
     'numbers' => [

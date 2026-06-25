@@ -36,4 +36,9 @@ class PersianManager
     {
         return $this->pipeline->forStorage($value);
     }
+
+    public function searchable(string|int|float|null $value): string
+    {
+        return $this->pipeline->forSearch($value);
+    }
 }

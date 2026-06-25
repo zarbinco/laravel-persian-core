@@ -10,6 +10,7 @@ use Zarbinco\PersianCore\PersianManager;
  * @method static \Zarbinco\PersianCore\Support\PersianNumber number(string|int|float|null $value)
  * @method static \Zarbinco\PersianCore\Support\PersianNormalizedString normalize(string|int|float|null $value)
  * @method static string clean(string|int|float|null $value)
+ * @method static string searchable(string|int|float|null $value)
  *
  * @see PersianManager
  */

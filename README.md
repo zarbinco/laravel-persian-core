@@ -2,7 +2,7 @@
 
 `zarbinco/laravel-persian-core` is a small Laravel package for Persian text and number normalization.
 
-Phase 1 focuses only on a stable foundation: text character cleanup, digit conversion, a combined storage/display pipeline, a fluent API, and a Laravel facade.
+The core package focuses on Persian text cleanup, digit conversion, combined storage/display/search normalization, a fluent API, and a Laravel facade.
 
 ## Installation
 
@@ -18,14 +18,32 @@ php artisan vendor:publish --tag=persian-core-config
 
 ## Configuration
 
-The default digit configuration is:
+The default normalization configuration includes:
 
 ```php
+'text' => [
+    'display' => [
+        'normalize_ellipsis' => true,
+        'normalize_punctuation_spacing' => true,
+    ],
+
+    'search' => [
+        'zwnj' => 'space',
+        'remove_punctuation' => true,
+        'normalize_arabic_alef' => true,
+        'normalize_teh_marbuta' => true,
+    ],
+],
+
 'numbers' => [
     'storage_digits' => 'en',
     'display_digits' => 'fa',
 ],
 ```
+
+`text.display` controls display-friendly cleanup such as ellipsis normalization and punctuation spacing.
+
+`text.search.zwnj` controls how ZWNJ is handled for search normalization. Supported values are `preserve`, `remove`, and `space`. Invalid values fall back to `space`.
 
 `numbers.storage_digits` controls the output of storage normalization:
 
@@ -59,6 +77,15 @@ Persian::normalize('علي كاظمي شماره ۰۹۱۲۱۲۳۴۵۶۷')->forSt
 
 Persian::normalize('علي كاظمي شماره 09121234567')->forDisplay();
 // علی کاظمی شماره ۰۹۱۲۱۲۳۴۵۶۷
+
+Persian::text('سلام ،  علي !')->forDisplay();
+// سلام، علی!
+
+Persian::text('می‌روم')->forSearch();
+// می روم
+
+Persian::normalize('علي كاظمي مبلغ ۱,۲۵۰,۰۰۰ تومان')->forSearch();
+// علی کاظمی مبلغ 1250000 تومان
 ```
 
 ## Normalization Modes
@@ -67,10 +94,27 @@ Persian::normalize('علي كاظمي شماره 09121234567')->forDisplay();
 
 Text normalization fixes Persian and Arabic text variants without changing digits. It converts Arabic Yeh and Kaf to Persian Yeh and Kaf, removes Arabic diacritics and tatweel, removes problematic invisible characters while preserving ZWNJ, and normalizes whitespace.
 
+`normalize()` is conservative and safe. It does not apply aggressive search transformations or digit conversion.
+
 ```php
 Persian::text('علي ۱۲۳')->normalize();
 // علی ۱۲۳
+
+Persian::text('علي ۱۲۳')->forStorage();
+// علی ۱۲۳
+
+Persian::text('سلام ،  علی  ! خوبی ؟')->forDisplay();
+// سلام، علی! خوبی؟
+
+Persian::text('می‌روم')->forSearch();
+// می روم
 ```
+
+`forStorage()` is currently the same as `normalize()` for text-only normalization.
+
+`forDisplay()` is display-friendly and can normalize ellipsis and punctuation spacing without converting digits.
+
+`forSearch()` is more aggressive. It can normalize ZWNJ, remove punctuation, normalize Arabic Alef variants, and normalize Teh Marbuta. It still does not convert digits directly; digit conversion stays in number normalization or the combined pipeline.
 
 ### Number normalization
 
@@ -86,7 +130,7 @@ Persian::number('123456')->toPersian();
 
 ### Clean / storage normalization
 
-Clean normalization is an alias for storage normalization. It first normalizes text, then converts digits to English for storage.
+Clean normalization is an alias for storage normalization. It first normalizes text, then converts digits according to `numbers.storage_digits`. By default, storage digits are English.
 
 ```php
 Persian::clean('علي كاظمي شماره ۰۹۱۲۱۲۳۴۵۶۷');
@@ -95,11 +139,23 @@ Persian::clean('علي كاظمي شماره ۰۹۱۲۱۲۳۴۵۶۷');
 
 ### Display normalization
 
-Display normalization first normalizes text, then converts digits to Persian for display.
+Display normalization first applies display-friendly text normalization, then converts digits according to `numbers.display_digits`. By default, display digits are Persian.
 
 ```php
 Persian::normalize('علي كاظمي شماره 09121234567')->forDisplay();
 // علی کاظمی شماره ۰۹۱۲۱۲۳۴۵۶۷
+```
+
+### Search normalization
+
+Search normalization first applies more aggressive text normalization, then converts digits to English and removes numeric separators inside number groups.
+
+```php
+Persian::normalize('علي كاظمي مبلغ ۱,۲۵۰,۰۰۰ تومان')->forSearch();
+// علی کاظمی مبلغ 1250000 تومان
+
+Persian::searchable('علي ۱۲۳');
+// علی 123
 ```
 
 ## Not Included In Core

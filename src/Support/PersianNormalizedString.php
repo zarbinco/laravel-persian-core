@@ -21,6 +21,11 @@ class PersianNormalizedString
         return $this->pipeline->forDisplay($this->value);
     }
 
+    public function forSearch(): string
+    {
+        return $this->pipeline->forSearch($this->value);
+    }
+
     public function clean(): string
     {
         return $this->pipeline->clean($this->value);

@@ -25,7 +25,19 @@ class PersianNormalizerPipeline
 
     public function forDisplay(string|int|float|null $value): string
     {
-        return $this->normalizeDigits($this->textNormalizer->normalize($value), $this->displayDigits);
+        return $this->normalizeDigits($this->textNormalizer->forDisplay($value), $this->displayDigits);
+    }
+
+    public function forSearch(string|int|float|null $value): string
+    {
+        $text = $this->numberNormalizer->toEnglish(
+            $this->textNormalizer->forSearch($value),
+        );
+
+        $text = (string) preg_replace('/(?<=\d)[,٬_](?=\d)/u', '', $text);
+        $text = (string) preg_replace('/(?<=\d)\s+(?=\d)/u', '', $text);
+
+        return trim($text);
     }
 
     public function clean(string|int|float|null $value): string
