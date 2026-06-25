@@ -1,6 +1,6 @@
 # Laravel Persian Core
 
-`zarbinco/laravel-persian-core` is a small Laravel package for Persian text and number normalization.
+`zarbinco/laravel-persian-core` is a lightweight Laravel foundation package for Persian text, numbers, mobile, money, and validation utilities.
 
 The core package focuses on Persian text cleanup, digit conversion, combined storage/display/search normalization, a fluent API, and a Laravel facade.
 
@@ -68,6 +68,23 @@ The default normalization configuration includes:
         ],
     ],
 ],
+
+'validation' => [
+    'empty_values_pass' => true,
+
+    'iranian_mobile' => [
+        'strict_operator_prefixes' => false,
+    ],
+
+    'iranian_postal_code' => [
+        'reject_repeated_digits' => true,
+    ],
+
+    'iranian_card_number' => [
+        'require_luhn' => true,
+        'require_iranian_bin' => false,
+    ],
+],
 ```
 
 `text.display` controls display-friendly cleanup such as ellipsis normalization and punctuation spacing.
@@ -91,6 +108,8 @@ The default normalization configuration includes:
 `money.default_currency` controls the default label used by `Persian::money(...)->format()`. Supported currencies are `toman` and `rial`.
 
 `money.rial_to_toman_rate` controls conversion helpers. By default, 1 toman equals 10 rial.
+
+`validation` controls lightweight validation-rule behavior. Empty values pass by default; use Laravel's `required` rule when a field must be present.
 
 ## Usage
 
@@ -241,7 +260,7 @@ Persian::searchable('علي ۱۲۳');
 
 ### Mobile normalization
 
-Mobile support in Phase 3 is normalization and formatting only. It does not add Laravel validation rules, does not strictly validate Iranian operator prefixes, and does not use an external phone number library.
+The fluent mobile API is for normalization and formatting. Laravel validation is available separately through the `IranianMobile` rule.
 
 ```php
 Persian::mobile('۰۹۱۲ ۱۲۳ ۴۵۶۷')->normalize();
@@ -264,7 +283,7 @@ Persian::mobile('09121234567')->mask();
 
 Money support is parsing and formatting only. Phase 4 supports `toman` and `rial`, integer conversion between them, and configurable labels and display digits.
 
-It does not include payment gateway support, invoice or PDF generation, tax/Modian integration, accounting ledger features, amount-to-words conversion, or validation rules.
+Laravel validation for parseable money input is available separately through `PersianMoneyAmount`.
 
 ```php
 Persian::money('۱,۲۵۰,۰۰۰ تومان')->value();
@@ -300,14 +319,51 @@ Persian::money(1250000)->fromToman()->formatRial();
 
 The default conversion rate is `1 toman = 10 rial`, configurable through `money.rial_to_toman_rate`.
 
+### Validation rules
+
+The package includes modern Laravel validation Rule objects. Empty strings and null values pass these rules by default, so Laravel's `required` rule should be used for requiredness.
+
+```php
+use Zarbinco\PersianCore\Rules\IranianMobile;
+use Zarbinco\PersianCore\Rules\IranianNationalCode;
+use Zarbinco\PersianCore\Rules\PersianAlpha;
+
+$request->validate([
+    'name' => ['required', new PersianAlpha()],
+    'mobile' => ['required', new IranianMobile()],
+    'national_code' => ['nullable', new IranianNationalCode()],
+]);
+```
+
+Available rules:
+
+- `PersianText`
+- `PersianAlpha`
+- `PersianAlphaNum`
+- `IranianMobile`
+- `IranianNationalCode`
+- `IranianPostalCode`
+- `IranianSheba`
+- `IranianCardNumber`
+- `PersianMoneyAmount`
+
+Validation boundaries:
+
+- `IranianMobile` checks normalized Iranian mobile shape, not operator ownership or strict operator prefixes.
+- `IranianSheba` checks format and IBAN checksum, not bank account ownership.
+- `IranianCardNumber` checks shape, Luhn by default, and optionally a small Iranian BIN list, not card ownership.
+- `PersianMoneyAmount` checks shape and parseability, not business min/max rules.
+
 ## Not Included In Core
 
-This core package intentionally does not include payments, SMS, invoice/PDF generation, tax/Modian integration, accounting ledgers, Filament integrations, Jalali calendar support, address or city databases, mobile validation rules, money validation rules, or business-specific features.
+This core package intentionally does not include payment gateways, SMS sending, invoice/PDF generation, tax/Modian integration, accounting ledgers, Filament integrations, Jalali calendar support, address or city databases, or business-specific workflows.
 
 ## Roadmap
 
-- Mobile validation rules
-- Validation rules
+- Developer experience commands
+- Doctor command
+- Optional string validation aliases
+- Stabilization for v1.0.0
 - Persian search package
 - Filament package
 

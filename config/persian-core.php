@@ -55,4 +55,21 @@ return [
             ],
         ],
     ],
+
+    'validation' => [
+        'empty_values_pass' => true,
+
+        'iranian_mobile' => [
+            'strict_operator_prefixes' => false,
+        ],
+
+        'iranian_postal_code' => [
+            'reject_repeated_digits' => true,
+        ],
+
+        'iranian_card_number' => [
+            'require_luhn' => true,
+            'require_iranian_bin' => false,
+        ],
+    ],
 ];

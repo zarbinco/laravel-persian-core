@@ -88,8 +88,14 @@ class PersianCoreServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'persian-core');
+
         $this->publishes([
             __DIR__.'/../config/persian-core.php' => config_path('persian-core.php'),
         ], 'persian-core-config');
+
+        $this->publishes([
+            __DIR__.'/../resources/lang' => lang_path('vendor/persian-core'),
+        ], 'persian-core-lang');
     }
 }
