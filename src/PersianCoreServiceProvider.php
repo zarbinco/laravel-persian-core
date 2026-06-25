@@ -4,8 +4,10 @@ namespace Zarbinco\PersianCore;
 
 use Illuminate\Support\ServiceProvider;
 use Zarbinco\PersianCore\Formatters\MobileFormatter;
+use Zarbinco\PersianCore\Formatters\MoneyFormatter;
 use Zarbinco\PersianCore\Formatters\NumberFormatter;
 use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
+use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
@@ -27,6 +29,21 @@ class PersianCoreServiceProvider extends ServiceProvider
         $this->app->singleton(NumberFormatter::class, function ($app): NumberFormatter {
             return new NumberFormatter(
                 $app->make(PersianNumberNormalizer::class),
+                (array) config('persian-core.numbers', []),
+            );
+        });
+
+        $this->app->singleton(MoneyNormalizer::class, function ($app): MoneyNormalizer {
+            return new MoneyNormalizer(
+                $app->make(PersianNumberNormalizer::class),
+            );
+        });
+
+        $this->app->singleton(MoneyFormatter::class, function ($app): MoneyFormatter {
+            return new MoneyFormatter(
+                $app->make(MoneyNormalizer::class),
+                $app->make(PersianNumberNormalizer::class),
+                (array) config('persian-core.money', []),
                 (array) config('persian-core.numbers', []),
             );
         });
@@ -58,6 +75,8 @@ class PersianCoreServiceProvider extends ServiceProvider
                 $app->make(PersianTextNormalizer::class),
                 $app->make(PersianNumberNormalizer::class),
                 $app->make(NumberFormatter::class),
+                $app->make(MoneyNormalizer::class),
+                $app->make(MoneyFormatter::class),
                 $app->make(MobileNormalizer::class),
                 $app->make(MobileFormatter::class),
                 $app->make(PersianNormalizerPipeline::class),

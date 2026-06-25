@@ -37,4 +37,22 @@ return [
             'mask_pattern' => '0912***4567',
         ],
     ],
+
+    'money' => [
+        'default_currency' => 'toman',
+        'display_digits' => 'fa',
+        'thousands_separator' => ',',
+        'rial_to_toman_rate' => 10,
+
+        'labels' => [
+            'fa' => [
+                'toman' => 'تومان',
+                'rial' => 'ریال',
+            ],
+            'en' => [
+                'toman' => 'toman',
+                'rial' => 'rial',
+            ],
+        ],
+    ],
 ];

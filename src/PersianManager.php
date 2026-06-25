@@ -3,12 +3,15 @@
 namespace Zarbinco\PersianCore;
 
 use Zarbinco\PersianCore\Formatters\MobileFormatter;
+use Zarbinco\PersianCore\Formatters\MoneyFormatter;
 use Zarbinco\PersianCore\Formatters\NumberFormatter;
 use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
+use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
 use Zarbinco\PersianCore\Support\PersianMobile;
+use Zarbinco\PersianCore\Support\PersianMoney;
 use Zarbinco\PersianCore\Support\PersianNormalizedString;
 use Zarbinco\PersianCore\Support\PersianNumber;
 use Zarbinco\PersianCore\Support\PersianString;
@@ -19,6 +22,8 @@ class PersianManager
         private readonly PersianTextNormalizer $textNormalizer,
         private readonly PersianNumberNormalizer $numberNormalizer,
         private readonly NumberFormatter $numberFormatter,
+        private readonly MoneyNormalizer $moneyNormalizer,
+        private readonly MoneyFormatter $moneyFormatter,
         private readonly MobileNormalizer $mobileNormalizer,
         private readonly MobileFormatter $mobileFormatter,
         private readonly PersianNormalizerPipeline $pipeline,
@@ -37,6 +42,11 @@ class PersianManager
     public function mobile(string|int|float|null $value): PersianMobile
     {
         return new PersianMobile($value, $this->mobileNormalizer, $this->mobileFormatter);
+    }
+
+    public function money(string|int|float|null $value): PersianMoney
+    {
+        return new PersianMoney($value, $this->moneyNormalizer, $this->moneyFormatter);
     }
 
     public function normalize(string|int|float|null $value): PersianNormalizedString

@@ -50,6 +50,24 @@ The default normalization configuration includes:
         'mask_pattern' => '0912***4567',
     ],
 ],
+
+'money' => [
+    'default_currency' => 'toman',
+    'display_digits' => 'fa',
+    'thousands_separator' => ',',
+    'rial_to_toman_rate' => 10,
+
+    'labels' => [
+        'fa' => [
+            'toman' => 'تومان',
+            'rial' => 'ریال',
+        ],
+        'en' => [
+            'toman' => 'toman',
+            'rial' => 'rial',
+        ],
+    ],
+],
 ```
 
 `text.display` controls display-friendly cleanup such as ellipsis normalization and punctuation spacing.
@@ -69,6 +87,10 @@ The default normalization configuration includes:
 - `en` means `forDisplay()` returns English digits.
 
 `mobile.iran` controls the default Iranian mobile country code, national prefix, and mask pattern used by the mobile normalization foundation.
+
+`money.default_currency` controls the default label used by `Persian::money(...)->format()`. Supported currencies are `toman` and `rial`.
+
+`money.rial_to_toman_rate` controls conversion helpers. By default, 1 toman equals 10 rial.
 
 ## Usage
 
@@ -113,6 +135,9 @@ Persian::mobile('۰۹۱۲ ۱۲۳ ۴۵۶۷')->normalize();
 
 Persian::mobile('09121234567')->international();
 // +989121234567
+
+Persian::money(1250000)->format();
+// ۱,۲۵۰,۰۰۰ تومان
 ```
 
 ## Normalization Modes
@@ -235,14 +260,53 @@ Persian::mobile('09121234567')->mask();
 // 0912***4567
 ```
 
+### Money parsing and formatting
+
+Money support is parsing and formatting only. Phase 4 supports `toman` and `rial`, integer conversion between them, and configurable labels and display digits.
+
+It does not include payment gateway support, invoice or PDF generation, tax/Modian integration, accounting ledger features, amount-to-words conversion, or validation rules.
+
+```php
+Persian::money('۱,۲۵۰,۰۰۰ تومان')->value();
+// 1250000
+
+Persian::money('۱۲,۵۰۰,۰۰۰ ریال')->detectedCurrency();
+// rial
+
+Persian::money(1250000)->format();
+// ۱,۲۵۰,۰۰۰ تومان
+
+Persian::money(1250000)->toman();
+// ۱,۲۵۰,۰۰۰ تومان
+
+Persian::money(12500000)->rial();
+// ۱۲,۵۰۰,۰۰۰ ریال
+
+Persian::money(1250000)->format('toman', 'en');
+// 1,250,000 toman
+
+Persian::money(12500000)->fromRial()->toToman();
+// 1250000
+
+Persian::money(1250000)->fromToman()->toRial();
+// 12500000
+
+Persian::money(12500000)->fromRial()->formatToman();
+// ۱,۲۵۰,۰۰۰ تومان
+
+Persian::money(1250000)->fromToman()->formatRial();
+// ۱۲,۵۰۰,۰۰۰ ریال
+```
+
+The default conversion rate is `1 toman = 10 rial`, configurable through `money.rial_to_toman_rate`.
+
 ## Not Included In Core
 
-This core package intentionally does not include payments, SMS, PDF generation, Filament integrations, Jalali calendar support, address or city databases, mobile validation rules, money formatting, validation rules, or business-specific features.
+This core package intentionally does not include payments, SMS, invoice/PDF generation, tax/Modian integration, accounting ledgers, Filament integrations, Jalali calendar support, address or city databases, mobile validation rules, money validation rules, or business-specific features.
 
 ## Roadmap
 
 - Mobile validation rules
-- Money formatter
 - Validation rules
 - Persian search package
 - Filament package
