@@ -38,12 +38,25 @@ The default normalization configuration includes:
 'numbers' => [
     'storage_digits' => 'en',
     'display_digits' => 'fa',
+    'thousands_separator' => ',',
+    'decimal_separator' => '.',
+],
+
+'mobile' => [
+    'default_country' => 'IR',
+    'iran' => [
+        'country_code' => '98',
+        'national_prefix' => '0',
+        'mask_pattern' => '0912***4567',
+    ],
 ],
 ```
 
 `text.display` controls display-friendly cleanup such as ellipsis normalization and punctuation spacing.
 
 `text.search.zwnj` controls how ZWNJ is handled for search normalization. Supported values are `preserve`, `remove`, and `space`. Invalid values fall back to `space`.
+
+`numbers.thousands_separator` and `numbers.decimal_separator` control formatted numeric output. By default, formatted numbers use `,` for thousands and `.` for decimals.
 
 `numbers.storage_digits` controls the output of storage normalization:
 
@@ -54,6 +67,8 @@ The default normalization configuration includes:
 
 - `fa` means `forDisplay()` returns Persian digits.
 - `en` means `forDisplay()` returns English digits.
+
+`mobile.iran` controls the default Iranian mobile country code, national prefix, and mask pattern used by the mobile normalization foundation.
 
 ## Usage
 
@@ -86,6 +101,18 @@ Persian::text('می‌روم')->forSearch();
 
 Persian::normalize('علي كاظمي مبلغ ۱,۲۵۰,۰۰۰ تومان')->forSearch();
 // علی کاظمی مبلغ 1250000 تومان
+
+Persian::number('۱,۲۵۰,۰۰۰')->clean();
+// 1250000
+
+Persian::number('۱۲۳۴۵۶۷')->format();
+// ۱,۲۳۴,۵۶۷
+
+Persian::mobile('۰۹۱۲ ۱۲۳ ۴۵۶۷')->normalize();
+// 09121234567
+
+Persian::mobile('09121234567')->international();
+// +989121234567
 ```
 
 ## Normalization Modes
@@ -116,9 +143,17 @@ Persian::text('می‌روم')->forSearch();
 
 `forSearch()` is more aggressive. It can normalize ZWNJ, remove punctuation, normalize Arabic Alef variants, and normalize Teh Marbuta. It still does not convert digits directly; digit conversion stays in number normalization or the combined pipeline.
 
-### Number normalization
+### Number normalization and parsing
 
-Number normalization only changes digits. It can convert Persian and Arabic digits to English digits, or English and Arabic digits to Persian digits. Non-digit text is left unchanged.
+Number normalization only changes digits when using `toEnglish()` or `toPersian()`. Non-digit text is left unchanged.
+
+Number parsing methods are more focused on numeric strings:
+
+- `toEnglish()` converts Persian and Arabic digits to English digits.
+- `toPersian()` converts English and Arabic digits to Persian digits.
+- `clean()` converts to an English numeric string, removes thousands separators, normalizes decimal and minus signs, and extracts the numeric value.
+- `digitsOnly()` extracts only English digits.
+- `format()` formats the cleaned number with thousands separators and configurable output digits.
 
 ```php
 Persian::number('۱۲۳٤٥۶')->toEnglish();
@@ -126,6 +161,27 @@ Persian::number('۱۲۳٤٥۶')->toEnglish();
 
 Persian::number('123456')->toPersian();
 // ۱۲۳۴۵۶
+
+Persian::number('۱,۲۵۰,۰۰۰')->clean();
+// 1250000
+
+Persian::number('abc ۱۲۳ def')->digitsOnly();
+// 123
+
+Persian::number('۱۲۳')->toInt();
+// 123
+
+Persian::number('۱۲٫۵')->toFloat();
+// 12.5
+
+Persian::number('۱۲۳۴۵۶۷')->isNumeric();
+// true
+
+Persian::number('۱۲۳۴۵۶۷')->format();
+// ۱,۲۳۴,۵۶۷
+
+Persian::number('۱۲۳۴۵۶۷')->format('en');
+// 1,234,567
 ```
 
 ### Clean / storage normalization
@@ -158,13 +214,34 @@ Persian::searchable('علي ۱۲۳');
 // علی 123
 ```
 
+### Mobile normalization
+
+Mobile support in Phase 3 is normalization and formatting only. It does not add Laravel validation rules, does not strictly validate Iranian operator prefixes, and does not use an external phone number library.
+
+```php
+Persian::mobile('۰۹۱۲ ۱۲۳ ۴۵۶۷')->normalize();
+// 09121234567
+
+Persian::mobile('+989121234567')->national();
+// 09121234567
+
+Persian::mobile('09121234567')->international();
+// +989121234567
+
+Persian::mobile('09121234567')->e164();
+// +989121234567
+
+Persian::mobile('09121234567')->mask();
+// 0912***4567
+```
+
 ## Not Included In Core
 
-This core package intentionally does not include payments, SMS, PDF generation, Filament integrations, Jalali calendar support, address or city databases, mobile validation, money formatting, validation rules, or business-specific features.
+This core package intentionally does not include payments, SMS, PDF generation, Filament integrations, Jalali calendar support, address or city databases, mobile validation rules, money formatting, validation rules, or business-specific features.
 
 ## Roadmap
 
-- Mobile normalizer
+- Mobile validation rules
 - Money formatter
 - Validation rules
 - Persian search package

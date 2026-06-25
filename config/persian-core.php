@@ -25,5 +25,16 @@ return [
     'numbers' => [
         'storage_digits' => 'en',
         'display_digits' => 'fa',
+        'thousands_separator' => ',',
+        'decimal_separator' => '.',
+    ],
+
+    'mobile' => [
+        'default_country' => 'IR',
+        'iran' => [
+            'country_code' => '98',
+            'national_prefix' => '0',
+            'mask_pattern' => '0912***4567',
+        ],
     ],
 ];

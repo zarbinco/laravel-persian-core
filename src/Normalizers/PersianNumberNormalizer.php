@@ -35,6 +35,44 @@ class PersianNumberNormalizer implements Normalizer
         );
     }
 
+    public function clean(string|int|float|null $value): string
+    {
+        $number = $this->toEnglish($value);
+        $number = str_replace(['−', '٫'], ['-', '.'], $number);
+        $number = str_replace(['٬', ',', '_'], '', $number);
+        $number = (string) preg_replace('/(?<=\d)\s+(?=\d)/u', '', $number);
+
+        preg_match('/-?(?:\d+(?:\.\d*)?|\.\d+)/u', $number, $matches);
+
+        return $matches[0] ?? '';
+    }
+
+    public function digitsOnly(string|int|float|null $value): string
+    {
+        return (string) preg_replace('/\D+/u', '', $this->toEnglish($value));
+    }
+
+    public function toInt(string|int|float|null $value): ?int
+    {
+        $number = $this->clean($value);
+
+        return $number === '' ? null : (int) $number;
+    }
+
+    public function toFloat(string|int|float|null $value): ?float
+    {
+        $number = $this->clean($value);
+
+        return $number === '' ? null : (float) $number;
+    }
+
+    public function isNumeric(string|int|float|null $value): bool
+    {
+        $number = $this->clean($value);
+
+        return $number !== '' && is_numeric($number);
+    }
+
     private function stringValue(string|int|float|null $value): string
     {
         return $value === null ? '' : (string) $value;
