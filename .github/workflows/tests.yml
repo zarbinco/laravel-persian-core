@@ -3,6 +3,7 @@ name: Tests
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   tests:
@@ -27,7 +28,7 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Validate composer
         run: composer validate --strict
@@ -37,3 +38,6 @@ jobs:
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse
+
+      - name: Run Pint
+        run: vendor/bin/pint --test

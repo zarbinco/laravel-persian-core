@@ -1,12 +1,28 @@
 {
     "name": "zarbinco/laravel-persian-core",
-    "description": "Persian text and number normalization utilities for Laravel.",
+    "description": "A lightweight Laravel foundation package for Persian text, numbers, mobile, money, and validation utilities.",
     "type": "library",
+    "keywords": [
+        "farsi",
+        "iran",
+        "laravel",
+        "mobile",
+        "money",
+        "normalization",
+        "persian",
+        "validation"
+    ],
+    "homepage": "https://github.com/zarbinco/laravel-persian-core",
     "license": "MIT",
+    "support": {
+        "issues": "https://github.com/zarbinco/laravel-persian-core/issues",
+        "source": "https://github.com/zarbinco/laravel-persian-core"
+    },
     "require": {
         "php": "^8.2",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
         "illuminate/support": "^11.0|^12.0|^13.0",
-        "illuminate/contracts": "^11.0|^12.0|^13.0"
+        "illuminate/validation": "^11.0|^12.0|^13.0"
     },
     "require-dev": {
         "orchestra/testbench": "^9.0|^10.0|^11.0",
