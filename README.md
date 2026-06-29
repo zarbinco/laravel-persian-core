@@ -209,6 +209,41 @@ Persian::money(1250000)->fromToman()->toRial();
 
 The default conversion rate is `1 toman = 10 rial` and can be changed through `money.rial_to_toman_rate`.
 
+## Bank Detection
+
+Bank detection provides best-effort metadata from Iranian card BIN/IIN values and Sheba bank codes. It is offline-only, does not call external services, and unknown banks return `null`.
+
+```php
+$bank = Persian::card('6037991234567890')->bank();
+
+$bank?->toArray();
+// [
+//     'slug' => 'melli',
+//     'name' => 'Bank Melli Iran',
+//     'name_fa' => 'بانک ملی ایران',
+//     'card_bins' => ['603799'],
+//     'sheba_codes' => ['017'],
+// ]
+
+Persian::card('6037991234567890')->bankSlug();
+// melli
+
+Persian::sheba('IR170170000000000000000000')->bankNameFa();
+// بانک ملی ایران
+```
+
+Direct helpers are available when you only need the bank object:
+
+```php
+Persian::bankFromCard('۶۰۳۷۹۹ ۱۲۳۴ ۵۶۷۸ ۹۰۱۲')?->slug();
+// melli
+
+Persian::bankFromSheba('ir170170000000000000000000')?->name();
+// Bank Melli Iran
+```
+
+Bank detection is not validation and does not prove ownership, existence, account status, or card/account convertibility. Use `IranianCardNumber` and `IranianSheba` validation rules when validation is needed.
+
 ## Validation
 
 The package includes Laravel validation Rule objects. Empty values pass by default, so combine these rules with Laravel's `required` rule when a field must be present.
@@ -306,6 +341,7 @@ Other notable config groups:
 - `text`: base text cleanup plus display/search normalization behavior.
 - `mobile`: Iranian mobile country code, national prefix, and mask pattern.
 - `money`: default currency, labels, display digits, separators, and conversion rate.
+- `banks`: bank detection behavior documentation toggles.
 - `validation`: validation-rule strictness and empty-value behavior.
 - `developer_experience`: reserved developer-experience toggles. String macros are disabled by default.
 

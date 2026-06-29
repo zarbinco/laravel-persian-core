@@ -10,6 +10,7 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 
 - Added strict validation mode with `validation.strict` enabled by default and per-rule constructor overrides.
 - Added a first-class Persian search normalizer with `Persian::search($value)->normalize()`, tokenization, and centralized `Persian::searchable($value)` behavior.
+- Added offline best-effort Iranian bank detection from card BIN/IIN values and Sheba bank codes.
 
 ### Changed
 

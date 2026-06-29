@@ -11,16 +11,22 @@ use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianSearchNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
+use Zarbinco\PersianCore\Services\IranianBankDetector;
+use Zarbinco\PersianCore\Support\IranianBank;
+use Zarbinco\PersianCore\Support\PersianCard;
 use Zarbinco\PersianCore\Support\PersianMobile;
 use Zarbinco\PersianCore\Support\PersianMoney;
 use Zarbinco\PersianCore\Support\PersianNormalizedString;
 use Zarbinco\PersianCore\Support\PersianNumber;
 use Zarbinco\PersianCore\Support\PersianSearchString;
+use Zarbinco\PersianCore\Support\PersianSheba;
 use Zarbinco\PersianCore\Support\PersianString;
 
 class PersianManager
 {
     private readonly PersianSearchNormalizer $searchNormalizer;
+
+    private readonly IranianBankDetector $bankDetector;
 
     public function __construct(
         private readonly PersianTextNormalizer $textNormalizer,
@@ -32,8 +38,10 @@ class PersianManager
         private readonly MobileFormatter $mobileFormatter,
         private readonly PersianNormalizerPipeline $pipeline,
         ?PersianSearchNormalizer $searchNormalizer = null,
+        ?IranianBankDetector $bankDetector = null,
     ) {
         $this->searchNormalizer = $searchNormalizer ?? new PersianSearchNormalizer($this->numberNormalizer);
+        $this->bankDetector = $bankDetector ?? new IranianBankDetector($this->numberNormalizer);
     }
 
     public function text(string|int|float|null $value): PersianString
@@ -66,6 +74,16 @@ class PersianManager
         return new PersianSearchString($value, $this->searchNormalizer);
     }
 
+    public function card(string|int|float|null $value): PersianCard
+    {
+        return new PersianCard($value, $this->bankDetector);
+    }
+
+    public function sheba(string|int|float|null $value): PersianSheba
+    {
+        return new PersianSheba($value, $this->bankDetector);
+    }
+
     public function clean(string|int|float|null $value): string
     {
         return $this->pipeline->forStorage($value);
@@ -74,5 +92,15 @@ class PersianManager
     public function searchable(string|int|float|null $value): string
     {
         return $this->searchNormalizer->normalize($value);
+    }
+
+    public function bankFromCard(string|int|float|null $value): ?IranianBank
+    {
+        return $this->bankDetector->fromCard($value);
+    }
+
+    public function bankFromSheba(string|int|float|null $value): ?IranianBank
+    {
+        return $this->bankDetector->fromSheba($value);
     }
 }

@@ -57,6 +57,10 @@ return [
         ],
     ],
 
+    'banks' => [
+        'unknown_returns_null' => true,
+    ],
+
     'validation' => [
         'strict' => true,
         'empty_values_pass' => true,

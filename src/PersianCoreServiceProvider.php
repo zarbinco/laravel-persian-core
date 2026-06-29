@@ -16,6 +16,7 @@ use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianSearchNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
+use Zarbinco\PersianCore\Services\IranianBankDetector;
 
 class PersianCoreServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,12 @@ class PersianCoreServiceProvider extends ServiceProvider
             return new PersianSearchNormalizer(
                 $app->make(PersianNumberNormalizer::class),
                 (array) config('persian-core.text', []),
+            );
+        });
+
+        $this->app->singleton(IranianBankDetector::class, function ($app): IranianBankDetector {
+            return new IranianBankDetector(
+                $app->make(PersianNumberNormalizer::class),
             );
         });
 
@@ -94,6 +101,7 @@ class PersianCoreServiceProvider extends ServiceProvider
                 $app->make(MobileFormatter::class),
                 $app->make(PersianNormalizerPipeline::class),
                 $app->make(PersianSearchNormalizer::class),
+                $app->make(IranianBankDetector::class),
             );
         });
 

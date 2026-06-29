@@ -54,6 +54,13 @@ class ConfigValidatorTest extends TestCase
         $this->assertCheckStatus('money.rial_to_toman_rate', 'error');
     }
 
+    public function test_invalid_banks_unknown_returns_null_config_produces_error(): void
+    {
+        config(['persian-core.banks.unknown_returns_null' => 'yes']);
+
+        $this->assertCheckStatus('banks.unknown_returns_null', 'error');
+    }
+
     public function test_invalid_validation_strict_produces_error(): void
     {
         config(['persian-core.validation.strict' => 'yes']);

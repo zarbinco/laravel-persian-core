@@ -12,8 +12,12 @@ use Zarbinco\PersianCore\PersianManager;
  * @method static \Zarbinco\PersianCore\Support\PersianMoney money(string|int|float|null $value)
  * @method static \Zarbinco\PersianCore\Support\PersianNormalizedString normalize(string|int|float|null $value)
  * @method static \Zarbinco\PersianCore\Support\PersianSearchString search(string|int|float|null $value)
+ * @method static \Zarbinco\PersianCore\Support\PersianCard card(string|int|float|null $value)
+ * @method static \Zarbinco\PersianCore\Support\PersianSheba sheba(string|int|float|null $value)
  * @method static string clean(string|int|float|null $value)
  * @method static string searchable(string|int|float|null $value)
+ * @method static \Zarbinco\PersianCore\Support\IranianBank|null bankFromCard(string|int|float|null $value)
+ * @method static \Zarbinco\PersianCore\Support\IranianBank|null bankFromSheba(string|int|float|null $value)
  *
  * @see PersianManager
  */

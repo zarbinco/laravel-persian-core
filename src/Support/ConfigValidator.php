@@ -25,6 +25,7 @@ class ConfigValidator
             $this->inList('money.default_currency', config('persian-core.money.default_currency'), ['toman', 'rial']),
             $this->inList('money.display_digits', config('persian-core.money.display_digits'), ['en', 'fa']),
             $this->positiveInteger('money.rial_to_toman_rate', config('persian-core.money.rial_to_toman_rate')),
+            $this->booleanCheck('banks.unknown_returns_null', config('persian-core.banks.unknown_returns_null')),
             $this->booleanCheck('validation.strict', config('persian-core.validation.strict')),
             $this->booleanCheck('validation.empty_values_pass', config('persian-core.validation.empty_values_pass')),
             $this->booleanCheck('validation.iranian_postal_code.reject_repeated_digits', config('persian-core.validation.iranian_postal_code.reject_repeated_digits')),
