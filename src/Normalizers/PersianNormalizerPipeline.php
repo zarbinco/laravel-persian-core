@@ -8,14 +8,18 @@ class PersianNormalizerPipeline
 
     private readonly string $displayDigits;
 
+    private readonly PersianSearchNormalizer $searchNormalizer;
+
     /** @param array<string, mixed> $numberOptions */
     public function __construct(
         private readonly PersianTextNormalizer $textNormalizer,
         private readonly PersianNumberNormalizer $numberNormalizer,
         array $numberOptions = [],
+        ?PersianSearchNormalizer $searchNormalizer = null,
     ) {
         $this->storageDigits = $this->normalizeDigitsOption($numberOptions['storage_digits'] ?? null, 'en');
         $this->displayDigits = $this->normalizeDigitsOption($numberOptions['display_digits'] ?? null, 'fa');
+        $this->searchNormalizer = $searchNormalizer ?? new PersianSearchNormalizer($numberNormalizer);
     }
 
     public function forStorage(string|int|float|null $value): string
@@ -30,14 +34,7 @@ class PersianNormalizerPipeline
 
     public function forSearch(string|int|float|null $value): string
     {
-        $text = $this->numberNormalizer->toEnglish(
-            $this->textNormalizer->forSearch($value),
-        );
-
-        $text = (string) preg_replace('/(?<=\d)[,٬_](?=\d)/u', '', $text);
-        $text = (string) preg_replace('/(?<=\d)\s+(?=\d)/u', '', $text);
-
-        return trim($text);
+        return $this->searchNormalizer->normalize($value);
     }
 
     public function clean(string|int|float|null $value): string

@@ -9,15 +9,19 @@ use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
 use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Normalizers\PersianSearchNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
 use Zarbinco\PersianCore\Support\PersianMobile;
 use Zarbinco\PersianCore\Support\PersianMoney;
 use Zarbinco\PersianCore\Support\PersianNormalizedString;
 use Zarbinco\PersianCore\Support\PersianNumber;
+use Zarbinco\PersianCore\Support\PersianSearchString;
 use Zarbinco\PersianCore\Support\PersianString;
 
 class PersianManager
 {
+    private readonly PersianSearchNormalizer $searchNormalizer;
+
     public function __construct(
         private readonly PersianTextNormalizer $textNormalizer,
         private readonly PersianNumberNormalizer $numberNormalizer,
@@ -27,7 +31,10 @@ class PersianManager
         private readonly MobileNormalizer $mobileNormalizer,
         private readonly MobileFormatter $mobileFormatter,
         private readonly PersianNormalizerPipeline $pipeline,
-    ) {}
+        ?PersianSearchNormalizer $searchNormalizer = null,
+    ) {
+        $this->searchNormalizer = $searchNormalizer ?? new PersianSearchNormalizer($this->numberNormalizer);
+    }
 
     public function text(string|int|float|null $value): PersianString
     {
@@ -54,6 +61,11 @@ class PersianManager
         return new PersianNormalizedString($value, $this->pipeline);
     }
 
+    public function search(string|int|float|null $value): PersianSearchString
+    {
+        return new PersianSearchString($value, $this->searchNormalizer);
+    }
+
     public function clean(string|int|float|null $value): string
     {
         return $this->pipeline->forStorage($value);
@@ -61,6 +73,6 @@ class PersianManager
 
     public function searchable(string|int|float|null $value): string
     {
-        return $this->pipeline->forSearch($value);
+        return $this->searchNormalizer->normalize($value);
     }
 }

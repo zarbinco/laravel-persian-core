@@ -14,6 +14,7 @@ use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
 use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Normalizers\PersianSearchNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
 
 class PersianCoreServiceProvider extends ServiceProvider
@@ -28,6 +29,13 @@ class PersianCoreServiceProvider extends ServiceProvider
 
         $this->app->singleton(PersianNumberNormalizer::class, function (): PersianNumberNormalizer {
             return new PersianNumberNormalizer;
+        });
+
+        $this->app->singleton(PersianSearchNormalizer::class, function ($app): PersianSearchNormalizer {
+            return new PersianSearchNormalizer(
+                $app->make(PersianNumberNormalizer::class),
+                (array) config('persian-core.text', []),
+            );
         });
 
         $this->app->singleton(NumberFormatter::class, function ($app): NumberFormatter {
@@ -71,6 +79,7 @@ class PersianCoreServiceProvider extends ServiceProvider
                 $app->make(PersianTextNormalizer::class),
                 $app->make(PersianNumberNormalizer::class),
                 (array) config('persian-core.numbers', []),
+                $app->make(PersianSearchNormalizer::class),
             );
         });
 
@@ -84,6 +93,7 @@ class PersianCoreServiceProvider extends ServiceProvider
                 $app->make(MobileNormalizer::class),
                 $app->make(MobileFormatter::class),
                 $app->make(PersianNormalizerPipeline::class),
+                $app->make(PersianSearchNormalizer::class),
             );
         });
 

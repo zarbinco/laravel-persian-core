@@ -18,6 +18,7 @@ return [
             'zwnj' => 'space',
             'remove_punctuation' => true,
             'normalize_arabic_alef' => true,
+            'normalize_madda_alef' => true,
             'normalize_teh_marbuta' => true,
         ],
     ],

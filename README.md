@@ -9,6 +9,7 @@ It gives Laravel applications a small, dependency-light base for common Persian 
 - Persian and Arabic text normalization.
 - Persian, Arabic, and English digit conversion.
 - Storage, display, and search normalization pipelines.
+- First-class Persian search normalization for indexing and query cleanup.
 - Number cleaning, parsing, and formatting.
 - Iranian mobile normalization and masking foundation.
 - Toman/rial money parsing, formatting, and conversion helpers.
@@ -128,6 +129,36 @@ Persian::normalize('علي كاظمي شماره 09121234567')->forDisplay();
 Persian::normalize('علي مبلغ ۱,۲۵۰,۰۰۰ تومان')->forSearch();
 // علی مبلغ 1250000 تومان
 ```
+
+## Search Normalization
+
+Search normalization prepares deterministic text for indexing and user-query matching. It normalizes Persian/Arabic letter variants, removes diacritics and tatweel, handles ZWNJ according to config, converts Persian and Arabic digits to English, removes punctuation by default, and collapses digit groups.
+
+```php
+Persian::search('كیكِ شکلاتي')->normalize();
+// کیک شکلاتی
+
+Persian::search('آب‌میوه سن‌ایچ ۱۲,۵۰۰ تومان!')->normalize();
+// اب میوه سن ایچ 12500 تومان
+
+Persian::search('آب‌میوه سن‌ایچ')->tokens();
+// ['اب', 'میوه', 'سن', 'ایچ']
+```
+
+`Persian::searchable($value)` is kept as a direct string helper and uses the same search normalizer:
+
+```php
+$model->searchable_name = Persian::search($model->name)->normalize();
+$model->save();
+
+$query = Persian::search($request->input('q'))->normalize();
+
+Product::query()
+    ->where('searchable_name', 'like', "%{$query}%")
+    ->get();
+```
+
+This is normalization for search/indexing. It is not a full-text search engine, stemming system, transliteration layer, fuzzy matcher, Scout integration, or database-specific ranking tool.
 
 ## Mobile
 

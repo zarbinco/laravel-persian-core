@@ -16,6 +16,7 @@ class ConfigValidator
             $this->packageVersion(),
             $this->configLoaded(),
             $this->inList('text.search.zwnj', config('persian-core.text.search.zwnj'), ['preserve', 'remove', 'space']),
+            $this->booleanCheck('text.search.normalize_madda_alef', config('persian-core.text.search.normalize_madda_alef')),
             $this->inList('numbers.storage_digits', config('persian-core.numbers.storage_digits'), ['en', 'fa']),
             $this->inList('numbers.display_digits', config('persian-core.numbers.display_digits'), ['en', 'fa']),
             $this->stringCheck('numbers.thousands_separator', config('persian-core.numbers.thousands_separator')),

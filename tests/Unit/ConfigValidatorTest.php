@@ -33,6 +33,13 @@ class ConfigValidatorTest extends TestCase
         $this->assertCheckStatus('text.search.zwnj', 'error');
     }
 
+    public function test_invalid_search_madda_alef_config_produces_error(): void
+    {
+        config(['persian-core.text.search.normalize_madda_alef' => 'yes']);
+
+        $this->assertCheckStatus('text.search.normalize_madda_alef', 'error');
+    }
+
     public function test_invalid_money_currency_produces_error(): void
     {
         config(['persian-core.money.default_currency' => 'invalid']);

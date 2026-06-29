@@ -9,10 +9,12 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 ### Added
 
 - Added strict validation mode with `validation.strict` enabled by default and per-rule constructor overrides.
+- Added a first-class Persian search normalizer with `Persian::search($value)->normalize()`, tokenization, and centralized `Persian::searchable($value)` behavior.
 
 ### Changed
 
 - Hardened Iranian mobile, national code, postal code, card number, Sheba, and Persian money amount rules so strict validation rejects embedded garbage text while preserving normalizer behavior.
+- Refactored search normalization paths to share deterministic text, digit, punctuation, and digit-group normalization.
 
 ## [1.0.0] - 2026-06-25
 

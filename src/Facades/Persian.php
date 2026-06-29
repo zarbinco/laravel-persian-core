@@ -11,6 +11,7 @@ use Zarbinco\PersianCore\PersianManager;
  * @method static \Zarbinco\PersianCore\Support\PersianMobile mobile(string|int|float|null $value)
  * @method static \Zarbinco\PersianCore\Support\PersianMoney money(string|int|float|null $value)
  * @method static \Zarbinco\PersianCore\Support\PersianNormalizedString normalize(string|int|float|null $value)
+ * @method static \Zarbinco\PersianCore\Support\PersianSearchString search(string|int|float|null $value)
  * @method static string clean(string|int|float|null $value)
  * @method static string searchable(string|int|float|null $value)
  *

@@ -4,14 +4,18 @@ namespace Zarbinco\PersianCore\Normalizers;
 
 use Zarbinco\PersianCore\Contracts\Normalizer;
 
-class PersianTextNormalizer implements Normalizer
+class PersianSearchNormalizer implements Normalizer
 {
+    private const ZWNJ = "\u{200C}";
+
     /** @var array<string, mixed> */
     private array $options;
 
     /** @param array<string, mixed> $options */
-    public function __construct(array $options = [])
-    {
+    public function __construct(
+        private readonly PersianNumberNormalizer $numberNormalizer,
+        array $options = [],
+    ) {
         $this->options = array_replace_recursive([
             'normalize_arabic_yeh' => true,
             'normalize_arabic_kaf' => true,
@@ -19,11 +23,6 @@ class PersianTextNormalizer implements Normalizer
             'remove_tatweel' => true,
             'normalize_whitespace' => true,
             'remove_invisible_characters' => true,
-
-            'display' => [
-                'normalize_ellipsis' => true,
-                'normalize_punctuation_spacing' => true,
-            ],
 
             'search' => [
                 'zwnj' => 'space',
@@ -37,8 +36,70 @@ class PersianTextNormalizer implements Normalizer
 
     public function normalize(string|int|float|null $value): string
     {
-        $text = $this->stringValue($value);
+        $text = $this->normalizeText($this->stringValue($value));
 
+        if ($this->enabled('search.normalize_arabic_alef')) {
+            $text = strtr($text, [
+                'أ' => 'ا',
+                'إ' => 'ا',
+                'ٱ' => 'ا',
+            ]);
+        }
+
+        if ($this->enabled('search.normalize_madda_alef')) {
+            $text = str_replace('آ', 'ا', $text);
+        }
+
+        if ($this->enabled('search.normalize_teh_marbuta')) {
+            $text = str_replace('ة', 'ه', $text);
+        }
+
+        $text = match ($this->searchZwnjOption()) {
+            'preserve' => $text,
+            'remove' => str_replace(self::ZWNJ, '', $text),
+            default => str_replace(self::ZWNJ, ' ', $text),
+        };
+
+        $text = $this->numberNormalizer->toEnglish($text);
+
+        if ($this->enabled('search.remove_punctuation')) {
+            $text = (string) preg_replace('/[\p{P}\p{S}]+/u', ' ', $text);
+        }
+
+        $text = (string) preg_replace('/(?<=\d)[,٬_](?=\d)/u', '', $text);
+        $text = (string) preg_replace('/(?<=\d)\s+(?=\d)/u', '', $text);
+
+        return $this->normalizeWhitespace($text);
+    }
+
+    /** @return array<int, string> */
+    public function tokens(string|int|float|null $value): array
+    {
+        $normalized = $this->normalize($value);
+
+        if ($normalized === '') {
+            return [];
+        }
+
+        $parts = preg_split('/\s+/u', $normalized);
+
+        if ($parts === false) {
+            return [];
+        }
+
+        $tokens = [];
+
+        foreach ($parts as $part) {
+            if ($part !== '') {
+                $tokens[] = $part;
+            }
+        }
+
+        return $tokens;
+    }
+
+    private function normalizeText(string $text): string
+    {
         if ($this->enabled('normalize_arabic_yeh')) {
             $text = strtr($text, [
                 'ي' => 'ی',
@@ -64,36 +125,9 @@ class PersianTextNormalizer implements Normalizer
             $text = (string) preg_replace('/[\x{200B}\x{200D}\x{200E}\x{200F}\x{202A}-\x{202E}\x{2060}-\x{206F}\x{FEFF}]/u', '', $text);
         }
 
-        if ($this->enabled('normalize_whitespace')) {
-            $text = (string) preg_replace('/[ \t\r\n\f\v]+/u', ' ', $text);
-        }
-
-        return trim($text);
-    }
-
-    public function forStorage(string|int|float|null $value): string
-    {
-        return $this->normalize($value);
-    }
-
-    public function forDisplay(string|int|float|null $value): string
-    {
-        $text = $this->normalize($value);
-
-        if ($this->enabled('display.normalize_ellipsis')) {
-            $text = (string) preg_replace('/\.{3,}/u', '…', $text);
-        }
-
-        if ($this->enabled('display.normalize_punctuation_spacing')) {
-            $text = $this->normalizePunctuationSpacing($text);
-        }
-
-        return trim($text);
-    }
-
-    public function forSearch(string|int|float|null $value): string
-    {
-        return (new PersianSearchNormalizer(new PersianNumberNormalizer, $this->options))->normalize($value);
+        return $this->enabled('normalize_whitespace')
+            ? $this->normalizeWhitespace($text)
+            : trim($text);
     }
 
     private function enabled(string $option): bool
@@ -116,35 +150,18 @@ class PersianTextNormalizer implements Normalizer
         return $value;
     }
 
-    private function normalizePunctuationSpacing(string $text): string
+    private function searchZwnjOption(): string
     {
-        $protectedTokens = [];
-        $text = $this->protectDisplayTokens($text, $protectedTokens);
+        $value = $this->option('search.zwnj', 'space');
 
-        $text = (string) preg_replace('/\s+([،؛؟!\.:])/u', '$1', $text);
-        $text = (string) preg_replace('/([،؛؟!\.:])\s*(?=\S)/u', '$1 ', $text);
-
-        return strtr($this->normalizeWhitespace($text), $protectedTokens);
-    }
-
-    /** @param array<string, string> $protectedTokens */
-    private function protectDisplayTokens(string $text, array &$protectedTokens): string
-    {
-        return (string) preg_replace_callback(
-            '/(https?:\/\/\S+|www\.\S+|[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}|\d+(?:\.\d+)+|\d+(?::\d+)+)/iu',
-            function (array $matches) use (&$protectedTokens): string {
-                $placeholder = '__PERSIAN_CORE_DISPLAY_TOKEN_'.count($protectedTokens).'__';
-                $protectedTokens[$placeholder] = $matches[0];
-
-                return $placeholder;
-            },
-            $text,
-        );
+        return is_string($value) && in_array($value, ['preserve', 'remove', 'space'], true)
+            ? $value
+            : 'space';
     }
 
     private function normalizeWhitespace(string $text): string
     {
-        return trim((string) preg_replace('/[ \t\r\n\f\v]+/u', ' ', $text));
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
     }
 
     private function stringValue(string|int|float|null $value): string
