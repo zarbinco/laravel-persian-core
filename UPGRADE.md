@@ -32,6 +32,14 @@ Important defaults:
 
 Validation rules treat empty values as passing by default. Use Laravel's `required` rule for required fields.
 
+Validators are strict by default through `validation.strict => true`. They now reject values that contain an otherwise valid mobile, national code, postal code, card number, Sheba, or money amount inside arbitrary surrounding text.
+
+Set `validation.strict` to `false`, or pass `strict: false` to an affected rule constructor, to keep legacy permissive extraction for validation:
+
+```php
+new IranianMobile(strict: false);
+```
+
 ### Removed Or Deprecated APIs
 
 No stable APIs have been removed because this is the first stable release.

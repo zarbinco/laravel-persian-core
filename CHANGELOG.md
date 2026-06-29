@@ -6,7 +6,13 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 
 ## [Unreleased]
 
-- Nothing yet.
+### Added
+
+- Added strict validation mode with `validation.strict` enabled by default and per-rule constructor overrides.
+
+### Changed
+
+- Hardened Iranian mobile, national code, postal code, card number, Sheba, and Persian money amount rules so strict validation rejects embedded garbage text while preserving normalizer behavior.
 
 ## [1.0.0] - 2026-06-25
 

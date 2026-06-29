@@ -6,11 +6,15 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
 class PersianMoneyAmount implements ValidationRule
 {
+    public bool $implicit = true;
+
     public function __construct(
         private readonly ?MoneyNormalizer $normalizer = null,
+        private readonly ?bool $strict = null,
     ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -19,7 +23,15 @@ class PersianMoneyAmount implements ValidationRule
             return;
         }
 
-        if ($this->normalizer()->value($this->stringValue($value)) === null) {
+        $value = $this->stringValue($value);
+
+        if ($this->strict() && ! StrictValidationInput::persianMoneyAmount($value)) {
+            $fail(__('persian-core::validation.persian_money_amount'));
+
+            return;
+        }
+
+        if ($this->normalizer()->value($value) === null) {
             $fail(__('persian-core::validation.persian_money_amount'));
         }
     }
@@ -37,6 +49,11 @@ class PersianMoneyAmount implements ValidationRule
     private function emptyValuesPass(): bool
     {
         return (bool) config('persian-core.validation.empty_values_pass', true);
+    }
+
+    private function strict(): bool
+    {
+        return $this->strict ?? (bool) config('persian-core.validation.strict', true);
     }
 
     private function stringValue(mixed $value): string

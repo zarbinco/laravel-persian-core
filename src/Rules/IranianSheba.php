@@ -6,12 +6,16 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
+use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
 class IranianSheba implements ValidationRule
 {
+    public bool $implicit = true;
+
     public function __construct(
         private readonly ?PersianNumberNormalizer $numberNormalizer = null,
         private readonly ?PersianTextNormalizer $textNormalizer = null,
+        private readonly ?bool $strict = null,
     ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -20,7 +24,15 @@ class IranianSheba implements ValidationRule
             return;
         }
 
-        $sheba = $this->normalize($this->stringValue($value));
+        $value = $this->stringValue($value);
+
+        if ($this->strict() && ! StrictValidationInput::iranianSheba($value)) {
+            $fail(__('persian-core::validation.iranian_sheba'));
+
+            return;
+        }
+
+        $sheba = $this->normalize($value);
 
         if (preg_match('/^IR\d{24}$/', $sheba) !== 1 || ! $this->passesMod97($sheba)) {
             $fail(__('persian-core::validation.iranian_sheba'));
@@ -33,7 +45,7 @@ class IranianSheba implements ValidationRule
         $value = $this->numberNormalizer()->toEnglish($value);
         $value = strtoupper($value);
 
-        return (string) preg_replace('/[\s\-]+/u', '', $value);
+        return (string) preg_replace('/[\s\-\x{2010}-\x{2015}]+/u', '', $value);
     }
 
     private function passesMod97(string $iban): bool
@@ -70,6 +82,11 @@ class IranianSheba implements ValidationRule
     private function emptyValuesPass(): bool
     {
         return (bool) config('persian-core.validation.empty_values_pass', true);
+    }
+
+    private function strict(): bool
+    {
+        return $this->strict ?? (bool) config('persian-core.validation.strict', true);
     }
 
     private function stringValue(mixed $value): string

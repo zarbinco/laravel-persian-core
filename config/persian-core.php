@@ -57,6 +57,7 @@ return [
     ],
 
     'validation' => [
+        'strict' => true,
         'empty_values_pass' => true,
 
         'iranian_mobile' => [

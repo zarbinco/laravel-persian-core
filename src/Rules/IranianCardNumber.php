@@ -5,9 +5,12 @@ namespace Zarbinco\PersianCore\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
 class IranianCardNumber implements ValidationRule
 {
+    public bool $implicit = true;
+
     /** @var array<int, string> */
     private const IRANIAN_BINS = [
         '603799',
@@ -34,6 +37,7 @@ class IranianCardNumber implements ValidationRule
 
     public function __construct(
         private readonly ?PersianNumberNormalizer $normalizer = null,
+        private readonly ?bool $strict = null,
     ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -42,7 +46,15 @@ class IranianCardNumber implements ValidationRule
             return;
         }
 
-        $digits = $this->normalizer()->digitsOnly($this->stringValue($value));
+        $value = $this->stringValue($value);
+
+        if ($this->strict() && ! StrictValidationInput::iranianCardNumber($value)) {
+            $fail(__('persian-core::validation.iranian_card_number'));
+
+            return;
+        }
+
+        $digits = $this->normalizer()->digitsOnly($value);
 
         if (
             strlen($digits) !== 16
@@ -104,6 +116,11 @@ class IranianCardNumber implements ValidationRule
     private function emptyValuesPass(): bool
     {
         return (bool) config('persian-core.validation.empty_values_pass', true);
+    }
+
+    private function strict(): bool
+    {
+        return $this->strict ?? (bool) config('persian-core.validation.strict', true);
     }
 
     private function stringValue(mixed $value): string

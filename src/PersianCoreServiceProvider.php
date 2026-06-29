@@ -2,6 +2,7 @@
 
 namespace Zarbinco\PersianCore;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\ServiceProvider;
 use Zarbinco\PersianCore\Commands\AboutCommand;
 use Zarbinco\PersianCore\Commands\DoctorCommand;
@@ -19,7 +20,7 @@ class PersianCoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/persian-core.php', 'persian-core');
+        $this->mergeConfigFromRecursive(__DIR__.'/../config/persian-core.php', 'persian-core');
 
         $this->app->singleton(PersianTextNormalizer::class, function (): PersianTextNormalizer {
             return new PersianTextNormalizer((array) config('persian-core.text', []));
@@ -87,6 +88,21 @@ class PersianCoreServiceProvider extends ServiceProvider
         });
 
         $this->app->alias(PersianManager::class, 'persian-core');
+    }
+
+    private function mergeConfigFromRecursive(string $path, string $key): void
+    {
+        /** @var Repository $config */
+        $config = $this->app['config'];
+        $existing = $config->get($key, []);
+
+        /** @var array<string, mixed> $defaults */
+        $defaults = require $path;
+
+        $config->set($key, array_replace_recursive(
+            $defaults,
+            is_array($existing) ? $existing : [],
+        ));
     }
 
     public function boot(): void

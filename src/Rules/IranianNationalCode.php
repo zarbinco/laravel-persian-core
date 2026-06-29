@@ -5,11 +5,15 @@ namespace Zarbinco\PersianCore\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
 class IranianNationalCode implements ValidationRule
 {
+    public bool $implicit = true;
+
     public function __construct(
         private readonly ?PersianNumberNormalizer $normalizer = null,
+        private readonly ?bool $strict = null,
     ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -18,7 +22,15 @@ class IranianNationalCode implements ValidationRule
             return;
         }
 
-        $digits = $this->normalizer()->digitsOnly($this->stringValue($value));
+        $value = $this->stringValue($value);
+
+        if ($this->strict() && ! StrictValidationInput::digitsWithSpacesOrDashes($value, 10)) {
+            $fail(__('persian-core::validation.iranian_national_code'));
+
+            return;
+        }
+
+        $digits = $this->normalizer()->digitsOnly($value);
 
         if (strlen($digits) !== 10 || $this->isRepeated($digits) || ! $this->hasValidChecksum($digits)) {
             $fail(__('persian-core::validation.iranian_national_code'));
@@ -59,6 +71,11 @@ class IranianNationalCode implements ValidationRule
     private function emptyValuesPass(): bool
     {
         return (bool) config('persian-core.validation.empty_values_pass', true);
+    }
+
+    private function strict(): bool
+    {
+        return $this->strict ?? (bool) config('persian-core.validation.strict', true);
     }
 
     private function stringValue(mixed $value): string

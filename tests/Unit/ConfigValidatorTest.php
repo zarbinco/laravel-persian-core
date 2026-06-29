@@ -47,6 +47,13 @@ class ConfigValidatorTest extends TestCase
         $this->assertCheckStatus('money.rial_to_toman_rate', 'error');
     }
 
+    public function test_invalid_validation_strict_produces_error(): void
+    {
+        config(['persian-core.validation.strict' => 'yes']);
+
+        $this->assertCheckStatus('validation.strict', 'error');
+    }
+
     public function test_ext_intl_check_is_not_error(): void
     {
         $this->assertContains($this->check('extension.intl')['status'], ['ok', 'info']);

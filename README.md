@@ -213,6 +213,28 @@ Validation boundaries:
 - `IranianCardNumber` checks shape and Luhn by default, not card ownership.
 - `PersianMoneyAmount` checks shape and parseability, not business min/max rules.
 
+### Strict Validation Mode
+
+Validators are strict by default. Strict mode rejects values that only contain a valid value inside surrounding text, while normalizers remain permissive for extraction and cleanup use cases.
+
+```php
+'validation' => [
+    'strict' => true,
+    'empty_values_pass' => true,
+],
+```
+
+For legacy behavior, disable strict validation globally or per rule:
+
+```php
+config(['persian-core.validation.strict' => false]);
+
+new IranianMobile(strict: false);
+new IranianCardNumber(strict: true);
+```
+
+Strict validation still accepts Persian, Arabic, and English digits plus common separators for full values such as `0912-123-4567`, `6037 9900 0000 0006`, `IR18 0100 0000 0000 0000 0000 00`, and `۱,۲۵۰,۰۰۰ تومان`.
+
 ## Artisan Commands
 
 ```bash

@@ -6,11 +6,15 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
 class IranianMobile implements ValidationRule
 {
+    public bool $implicit = true;
+
     public function __construct(
         private readonly ?MobileNormalizer $normalizer = null,
+        private readonly ?bool $strict = null,
     ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -19,7 +23,15 @@ class IranianMobile implements ValidationRule
             return;
         }
 
-        $mobile = $this->normalizer()->national($this->stringValue($value));
+        $value = $this->stringValue($value);
+
+        if ($this->strict() && ! StrictValidationInput::iranianMobile($value)) {
+            $fail(__('persian-core::validation.iranian_mobile'));
+
+            return;
+        }
+
+        $mobile = $this->normalizer()->national($value);
 
         if (preg_match('/^09\d{9}$/', $mobile) !== 1) {
             $fail(__('persian-core::validation.iranian_mobile'));
@@ -39,6 +51,11 @@ class IranianMobile implements ValidationRule
     private function emptyValuesPass(): bool
     {
         return (bool) config('persian-core.validation.empty_values_pass', true);
+    }
+
+    private function strict(): bool
+    {
+        return $this->strict ?? (bool) config('persian-core.validation.strict', true);
     }
 
     private function stringValue(mixed $value): string
