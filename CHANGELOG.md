@@ -24,6 +24,15 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 - Added GitHub metadata recommendations for repository About and Topics.
 - Added README badges for tests, Packagist version/downloads, license, and PHP requirements.
 
+### Testing
+
+- Added edge-case coverage for Persian text normalization, digit conversion, search normalization, mobile normalization, money formatting, validation rules, and offline bank detection.
+
+### CI
+
+- Expanded the GitHub Actions compatibility matrix to run against highest and lowest dependency sets on PHP 8.2, 8.3, and 8.4.
+- Added Composer dependency caching and aligned CI test, analysis, and style checks with the existing Composer scripts.
+
 ## [0.1.0] - 2026-06-26
 
 ### Added
