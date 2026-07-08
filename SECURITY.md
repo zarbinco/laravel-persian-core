@@ -2,11 +2,13 @@
 
 ## Supported Versions
 
-Security fixes are expected to target the latest stable release line.
+Security fixes are expected to target the latest tagged release line and the active default branch.
 
 | Version | Supported |
 | ------- | --------- |
-| 1.x     | Yes       |
+| `0.1.x` latest tag | Yes |
+| `main` / unreleased | Yes |
+| `1.x` | Not released yet |
 
 ## Reporting a Vulnerability
 
@@ -16,4 +18,4 @@ Use GitHub's private vulnerability reporting when available, or contact the main
 
 ## Scope
 
-This package provides local normalization, formatting, and validation helpers. It does not process payments, send SMS messages, generate invoices, or connect to external providers.
+This package provides local normalization, formatting, validation, and offline best-effort bank metadata helpers. It does not process payments, send SMS messages, generate invoices, verify bank ownership, or connect to external providers.

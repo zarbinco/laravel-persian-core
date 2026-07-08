@@ -25,11 +25,14 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 - Improved README structure, compatibility details, package boundaries, and testing/quality guidance.
 - Added GitHub metadata recommendations for repository About and Topics.
 - Added README badges for tests, Packagist version/downloads, license, and PHP requirements.
+- Added release-gate checklist and consumer smoke-test guidance.
+- Audited release-facing documentation and updated upgrade/security guidance so it does not imply an unpublished `v1.0.0` release.
 
 ### Testing
 
 - Added edge-case coverage for Persian text normalization, digit conversion, search normalization, mobile normalization, money formatting, validation rules, and offline bank detection.
 - Added tests for contract resolution, contract overriding, concrete service resolution, and bank data config metadata.
+- Added a release-gate public API regression test for documented facade methods, validation rules, contracts, and publish tags.
 
 ### CI
 

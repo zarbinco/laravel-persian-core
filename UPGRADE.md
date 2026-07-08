@@ -1,45 +1,30 @@
 # Upgrade Guide
 
-## Upgrading To 1.0.0
+## Current Unreleased Review
 
-`1.0.0` is the first stable release of `zarbinco/laravel-persian-core`.
+The Phase 1-4 documentation, CI, tests, contracts, config metadata, and release-gate changes are intended to be backward-compatible.
 
-### Requirements
+Within Phases 1-4, no validation behavior was intentionally changed. However, the broader current `[Unreleased]` changelog includes validation hardening and strict validation mode entries. Before tagging, review those entries and document any stricter validation impact clearly in the release notes.
+
+Existing Facade and Manager APIs remain supported, including:
+
+```php
+Persian::normalize($value);
+Persian::clean($value);
+Persian::searchable($value);
+Persian::bankFromCard($value);
+Persian::bankFromSheba($value);
+```
+
+Consumers should review the README for new optional extension contracts and informational bank data metadata.
+
+The optional `bank_data` config section is metadata only. It does not enable live bank verification and does not change the documented `null` fallback for unknown bank/card/Sheba detection.
+
+## Custom Contract Implementations
+
+Applications may override package contracts through Laravel's container. Custom implementations should preserve the documented behavior and return types expected by the contract they replace.
+
+## Requirements
 
 - PHP `^8.2`.
 - Laravel components `^11.0`, `^12.0`, or `^13.0`.
-
-### Configuration
-
-Publish or compare the latest config:
-
-```bash
-php artisan vendor:publish --tag=persian-core-config
-```
-
-Important defaults:
-
-```php
-'numbers' => [
-    'storage_digits' => 'en',
-    'display_digits' => 'fa',
-],
-```
-
-`Persian::clean()` and `forStorage()` use `numbers.storage_digits`. `forDisplay()` uses `numbers.display_digits`.
-
-### Validation
-
-Validation rules treat empty values as passing by default. Use Laravel's `required` rule for required fields.
-
-Validators are strict by default through `validation.strict => true`. They now reject values that contain an otherwise valid mobile, national code, postal code, card number, Sheba, or money amount inside arbitrary surrounding text.
-
-Set `validation.strict` to `false`, or pass `strict: false` to an affected rule constructor, to keep legacy permissive extraction for validation:
-
-```php
-new IranianMobile(strict: false);
-```
-
-### Removed Or Deprecated APIs
-
-No stable APIs have been removed because this is the first stable release.
