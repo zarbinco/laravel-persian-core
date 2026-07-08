@@ -2,10 +2,11 @@
 
 namespace Zarbinco\PersianCore\Formatters;
 
-use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
-use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Contracts\MoneyFormatterContract;
+use Zarbinco\PersianCore\Contracts\MoneyNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
 
-class MoneyFormatter
+class MoneyFormatter implements MoneyFormatterContract
 {
     private readonly string $defaultCurrency;
 
@@ -25,8 +26,8 @@ class MoneyFormatter
      * @param  array<string, mixed>  $numberOptions
      */
     public function __construct(
-        private readonly MoneyNormalizer $normalizer,
-        private readonly PersianNumberNormalizer $numberNormalizer,
+        private readonly MoneyNormalizerContract $normalizer,
+        private readonly PersianNumberNormalizerContract $numberNormalizer,
         array $moneyOptions = [],
         array $numberOptions = [],
     ) {

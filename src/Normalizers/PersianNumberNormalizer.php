@@ -2,9 +2,9 @@
 
 namespace Zarbinco\PersianCore\Normalizers;
 
-use Zarbinco\PersianCore\Contracts\Normalizer;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
 
-class PersianNumberNormalizer implements Normalizer
+class PersianNumberNormalizer implements PersianNumberNormalizerContract
 {
     private const ENGLISH_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 

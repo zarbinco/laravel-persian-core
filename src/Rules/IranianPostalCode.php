@@ -4,6 +4,7 @@ namespace Zarbinco\PersianCore\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
@@ -12,7 +13,7 @@ class IranianPostalCode implements ValidationRule
     public bool $implicit = true;
 
     public function __construct(
-        private readonly ?PersianNumberNormalizer $normalizer = null,
+        private readonly ?PersianNumberNormalizerContract $normalizer = null,
         private readonly ?bool $strict = null,
     ) {}
 
@@ -37,7 +38,7 @@ class IranianPostalCode implements ValidationRule
         }
     }
 
-    private function normalizer(): PersianNumberNormalizer
+    private function normalizer(): PersianNumberNormalizerContract
     {
         return $this->normalizer ?? new PersianNumberNormalizer;
     }

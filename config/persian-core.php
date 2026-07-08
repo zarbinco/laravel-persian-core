@@ -61,6 +61,12 @@ return [
         'unknown_returns_null' => true,
     ],
 
+    'bank_data' => [
+        'version' => '2026-06-26',
+        'source' => 'manual-curated',
+        'strict_unknown' => false,
+    ],
+
     'validation' => [
         'strict' => true,
         'empty_values_pass' => true,

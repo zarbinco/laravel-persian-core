@@ -2,8 +2,8 @@
 
 namespace Zarbinco\PersianCore\Support;
 
-use Zarbinco\PersianCore\Formatters\MoneyFormatter;
-use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
+use Zarbinco\PersianCore\Contracts\MoneyFormatterContract;
+use Zarbinco\PersianCore\Contracts\MoneyNormalizerContract;
 
 class PersianMoney
 {
@@ -11,8 +11,8 @@ class PersianMoney
 
     public function __construct(
         private readonly string|int|float|null $value,
-        private readonly MoneyNormalizer $normalizer,
-        private readonly MoneyFormatter $formatter,
+        private readonly MoneyNormalizerContract $normalizer,
+        private readonly MoneyFormatterContract $formatter,
     ) {}
 
     public function clean(): string

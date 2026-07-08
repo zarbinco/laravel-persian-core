@@ -2,13 +2,13 @@
 
 namespace Zarbinco\PersianCore\Support;
 
-use Zarbinco\PersianCore\Services\IranianBankDetector;
+use Zarbinco\PersianCore\Contracts\IranianBankDetectorContract;
 
 class PersianSheba
 {
     public function __construct(
         private readonly string|int|float|null $value,
-        private readonly IranianBankDetector $detector,
+        private readonly IranianBankDetectorContract $detector,
     ) {}
 
     public function value(): string

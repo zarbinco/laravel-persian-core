@@ -2,13 +2,13 @@
 
 namespace Zarbinco\PersianCore\Support;
 
-use Zarbinco\PersianCore\Normalizers\PersianSearchNormalizer;
+use Zarbinco\PersianCore\Contracts\PersianSearchNormalizerContract;
 
 class PersianSearchString
 {
     public function __construct(
         private readonly string|int|float|null $value,
-        private readonly PersianSearchNormalizer $normalizer,
+        private readonly PersianSearchNormalizerContract $normalizer,
     ) {}
 
     public function normalize(): string

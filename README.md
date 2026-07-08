@@ -398,8 +398,22 @@ Other notable config groups:
 - `mobile`: Iranian mobile country code, national prefix, and mask pattern.
 - `money`: default currency, labels, display digits, separators, and conversion rate.
 - `banks`: bank detection behavior documentation toggles.
+- `bank_data`: informational metadata for the bundled offline bank dataset.
 - `validation`: validation-rule strictness and empty-value behavior.
 - `developer_experience`: reserved developer-experience toggles. String macros are disabled by default.
+
+## Extending / Overriding Services
+
+Core services are bound to small contracts so applications can override implementation details through Laravel's container:
+
+```php
+use App\Support\CustomTextNormalizer;
+use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
+
+$this->app->bind(PersianTextNormalizerContract::class, CustomTextNormalizer::class);
+```
+
+Custom implementations should preserve the documented behavior and return types expected by the contract. Bank detection remains offline metadata-based unless your application explicitly replaces it with its own service.
 
 ## Testing / Quality
 

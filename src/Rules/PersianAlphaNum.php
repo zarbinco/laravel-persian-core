@@ -4,6 +4,8 @@ namespace Zarbinco\PersianCore\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
 
@@ -12,8 +14,8 @@ class PersianAlphaNum implements ValidationRule
     private const PERSIAN_LETTERS = '\x{0621}-\x{063A}\x{0641}-\x{064A}\x{066E}-\x{066F}\x{0671}-\x{06D3}\x{06FA}-\x{06FC}';
 
     public function __construct(
-        private readonly ?PersianTextNormalizer $textNormalizer = null,
-        private readonly ?PersianNumberNormalizer $numberNormalizer = null,
+        private readonly ?PersianTextNormalizerContract $textNormalizer = null,
+        private readonly ?PersianNumberNormalizerContract $numberNormalizer = null,
     ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
@@ -30,12 +32,12 @@ class PersianAlphaNum implements ValidationRule
         }
     }
 
-    private function textNormalizer(): PersianTextNormalizer
+    private function textNormalizer(): PersianTextNormalizerContract
     {
         return $this->textNormalizer ?? new PersianTextNormalizer((array) config('persian-core.text', []));
     }
 
-    private function numberNormalizer(): PersianNumberNormalizer
+    private function numberNormalizer(): PersianNumberNormalizerContract
     {
         return $this->numberNormalizer ?? new PersianNumberNormalizer;
     }

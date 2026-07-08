@@ -2,20 +2,25 @@
 
 namespace Zarbinco\PersianCore\Normalizers;
 
-class PersianNormalizerPipeline
+use Zarbinco\PersianCore\Contracts\PersianNormalizerPipelineContract;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianSearchNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
+
+class PersianNormalizerPipeline implements PersianNormalizerPipelineContract
 {
     private readonly string $storageDigits;
 
     private readonly string $displayDigits;
 
-    private readonly PersianSearchNormalizer $searchNormalizer;
+    private readonly PersianSearchNormalizerContract $searchNormalizer;
 
     /** @param array<string, mixed> $numberOptions */
     public function __construct(
-        private readonly PersianTextNormalizer $textNormalizer,
-        private readonly PersianNumberNormalizer $numberNormalizer,
+        private readonly PersianTextNormalizerContract $textNormalizer,
+        private readonly PersianNumberNormalizerContract $numberNormalizer,
         array $numberOptions = [],
-        ?PersianSearchNormalizer $searchNormalizer = null,
+        ?PersianSearchNormalizerContract $searchNormalizer = null,
     ) {
         $this->storageDigits = $this->normalizeDigitsOption($numberOptions['storage_digits'] ?? null, 'en');
         $this->displayDigits = $this->normalizeDigitsOption($numberOptions['display_digits'] ?? null, 'fa');

@@ -2,15 +2,15 @@
 
 namespace Zarbinco\PersianCore\Support;
 
-use Zarbinco\PersianCore\Formatters\MobileFormatter;
-use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
+use Zarbinco\PersianCore\Contracts\MobileFormatterContract;
+use Zarbinco\PersianCore\Contracts\MobileNormalizerContract;
 
 class PersianMobile
 {
     public function __construct(
         private readonly string|int|float|null $value,
-        private readonly MobileNormalizer $normalizer,
-        private readonly MobileFormatter $formatter,
+        private readonly MobileNormalizerContract $normalizer,
+        private readonly MobileFormatterContract $formatter,
     ) {}
 
     public function normalize(): string

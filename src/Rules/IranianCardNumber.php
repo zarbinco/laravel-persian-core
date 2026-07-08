@@ -4,6 +4,7 @@ namespace Zarbinco\PersianCore\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
@@ -36,7 +37,7 @@ class IranianCardNumber implements ValidationRule
     ];
 
     public function __construct(
-        private readonly ?PersianNumberNormalizer $normalizer = null,
+        private readonly ?PersianNumberNormalizerContract $normalizer = null,
         private readonly ?bool $strict = null,
     ) {}
 
@@ -93,7 +94,7 @@ class IranianCardNumber implements ValidationRule
         return in_array(substr($digits, 0, 6), self::IRANIAN_BINS, true);
     }
 
-    private function normalizer(): PersianNumberNormalizer
+    private function normalizer(): PersianNumberNormalizerContract
     {
         return $this->normalizer ?? new PersianNumberNormalizer;
     }

@@ -17,6 +17,8 @@ class PackageMetadataTest extends TestCase
             'numbers',
             'mobile',
             'money',
+            'banks',
+            'bank_data',
             'validation',
             'developer_experience',
         ] as $key) {

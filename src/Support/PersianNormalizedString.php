@@ -2,13 +2,13 @@
 
 namespace Zarbinco\PersianCore\Support;
 
-use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
+use Zarbinco\PersianCore\Contracts\PersianNormalizerPipelineContract;
 
 class PersianNormalizedString
 {
     public function __construct(
         private readonly string|int|float|null $value,
-        private readonly PersianNormalizerPipeline $pipeline,
+        private readonly PersianNormalizerPipelineContract $pipeline,
     ) {}
 
     public function forStorage(): string

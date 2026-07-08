@@ -2,18 +2,19 @@
 
 namespace Zarbinco\PersianCore\Services;
 
+use Zarbinco\PersianCore\Contracts\IranianBankDetectorContract;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
 use Zarbinco\PersianCore\Data\IranianBanks;
-use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Support\IranianBank;
 
-final class IranianBankDetector
+final class IranianBankDetector implements IranianBankDetectorContract
 {
     /** @var array<int, array{slug: string, name: string, name_fa: string, card_bins: array<int, string>, sheba_codes: array<int, string>}> */
     private array $banks;
 
     /** @param array<int, array{slug: string, name: string, name_fa: string, card_bins: array<int, string>, sheba_codes: array<int, string>}>|null $banks */
     public function __construct(
-        private readonly PersianNumberNormalizer $numberNormalizer,
+        private readonly PersianNumberNormalizerContract $numberNormalizer,
         ?array $banks = null,
     ) {
         $this->banks = $banks ?? IranianBanks::all();

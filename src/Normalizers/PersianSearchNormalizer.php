@@ -2,9 +2,10 @@
 
 namespace Zarbinco\PersianCore\Normalizers;
 
-use Zarbinco\PersianCore\Contracts\Normalizer;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianSearchNormalizerContract;
 
-class PersianSearchNormalizer implements Normalizer
+class PersianSearchNormalizer implements PersianSearchNormalizerContract
 {
     private const ZWNJ = "\u{200C}";
 
@@ -13,7 +14,7 @@ class PersianSearchNormalizer implements Normalizer
 
     /** @param array<string, mixed> $options */
     public function __construct(
-        private readonly PersianNumberNormalizer $numberNormalizer,
+        private readonly PersianNumberNormalizerContract $numberNormalizer,
         array $options = [],
     ) {
         $this->options = array_replace_recursive([

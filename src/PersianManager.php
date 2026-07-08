@@ -2,15 +2,17 @@
 
 namespace Zarbinco\PersianCore;
 
-use Zarbinco\PersianCore\Formatters\MobileFormatter;
-use Zarbinco\PersianCore\Formatters\MoneyFormatter;
-use Zarbinco\PersianCore\Formatters\NumberFormatter;
-use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
-use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
-use Zarbinco\PersianCore\Normalizers\PersianNormalizerPipeline;
-use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Contracts\IranianBankDetectorContract;
+use Zarbinco\PersianCore\Contracts\MobileFormatterContract;
+use Zarbinco\PersianCore\Contracts\MobileNormalizerContract;
+use Zarbinco\PersianCore\Contracts\MoneyFormatterContract;
+use Zarbinco\PersianCore\Contracts\MoneyNormalizerContract;
+use Zarbinco\PersianCore\Contracts\NumberFormatterContract;
+use Zarbinco\PersianCore\Contracts\PersianNormalizerPipelineContract;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianSearchNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
 use Zarbinco\PersianCore\Normalizers\PersianSearchNormalizer;
-use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
 use Zarbinco\PersianCore\Services\IranianBankDetector;
 use Zarbinco\PersianCore\Support\IranianBank;
 use Zarbinco\PersianCore\Support\PersianCard;
@@ -24,21 +26,21 @@ use Zarbinco\PersianCore\Support\PersianString;
 
 class PersianManager
 {
-    private readonly PersianSearchNormalizer $searchNormalizer;
+    private readonly PersianSearchNormalizerContract $searchNormalizer;
 
-    private readonly IranianBankDetector $bankDetector;
+    private readonly IranianBankDetectorContract $bankDetector;
 
     public function __construct(
-        private readonly PersianTextNormalizer $textNormalizer,
-        private readonly PersianNumberNormalizer $numberNormalizer,
-        private readonly NumberFormatter $numberFormatter,
-        private readonly MoneyNormalizer $moneyNormalizer,
-        private readonly MoneyFormatter $moneyFormatter,
-        private readonly MobileNormalizer $mobileNormalizer,
-        private readonly MobileFormatter $mobileFormatter,
-        private readonly PersianNormalizerPipeline $pipeline,
-        ?PersianSearchNormalizer $searchNormalizer = null,
-        ?IranianBankDetector $bankDetector = null,
+        private readonly PersianTextNormalizerContract $textNormalizer,
+        private readonly PersianNumberNormalizerContract $numberNormalizer,
+        private readonly NumberFormatterContract $numberFormatter,
+        private readonly MoneyNormalizerContract $moneyNormalizer,
+        private readonly MoneyFormatterContract $moneyFormatter,
+        private readonly MobileNormalizerContract $mobileNormalizer,
+        private readonly MobileFormatterContract $mobileFormatter,
+        private readonly PersianNormalizerPipelineContract $pipeline,
+        ?PersianSearchNormalizerContract $searchNormalizer = null,
+        ?IranianBankDetectorContract $bankDetector = null,
     ) {
         $this->searchNormalizer = $searchNormalizer ?? new PersianSearchNormalizer($this->numberNormalizer);
         $this->bankDetector = $bankDetector ?? new IranianBankDetector($this->numberNormalizer);

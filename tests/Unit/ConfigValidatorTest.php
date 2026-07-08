@@ -61,6 +61,19 @@ class ConfigValidatorTest extends TestCase
         $this->assertCheckStatus('banks.unknown_returns_null', 'error');
     }
 
+    public function test_invalid_bank_data_metadata_produces_errors(): void
+    {
+        config([
+            'persian-core.bank_data.version' => null,
+            'persian-core.bank_data.source' => null,
+            'persian-core.bank_data.strict_unknown' => 'yes',
+        ]);
+
+        $this->assertCheckStatus('bank_data.version', 'error');
+        $this->assertCheckStatus('bank_data.source', 'error');
+        $this->assertCheckStatus('bank_data.strict_unknown', 'error');
+    }
+
     public function test_invalid_validation_strict_produces_error(): void
     {
         config(['persian-core.validation.strict' => 'yes']);

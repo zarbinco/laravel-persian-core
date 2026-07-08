@@ -4,6 +4,8 @@ namespace Zarbinco\PersianCore\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianTextNormalizer;
 use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
@@ -13,8 +15,8 @@ class IranianSheba implements ValidationRule
     public bool $implicit = true;
 
     public function __construct(
-        private readonly ?PersianNumberNormalizer $numberNormalizer = null,
-        private readonly ?PersianTextNormalizer $textNormalizer = null,
+        private readonly ?PersianNumberNormalizerContract $numberNormalizer = null,
+        private readonly ?PersianTextNormalizerContract $textNormalizer = null,
         private readonly ?bool $strict = null,
     ) {}
 
@@ -64,12 +66,12 @@ class IranianSheba implements ValidationRule
         return $remainder === 1;
     }
 
-    private function numberNormalizer(): PersianNumberNormalizer
+    private function numberNormalizer(): PersianNumberNormalizerContract
     {
         return $this->numberNormalizer ?? new PersianNumberNormalizer;
     }
 
-    private function textNormalizer(): PersianTextNormalizer
+    private function textNormalizer(): PersianTextNormalizerContract
     {
         return $this->textNormalizer ?? new PersianTextNormalizer((array) config('persian-core.text', []));
     }

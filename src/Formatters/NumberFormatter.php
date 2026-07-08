@@ -2,9 +2,10 @@
 
 namespace Zarbinco\PersianCore\Formatters;
 
-use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
+use Zarbinco\PersianCore\Contracts\NumberFormatterContract;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
 
-class NumberFormatter
+class NumberFormatter implements NumberFormatterContract
 {
     private readonly string $displayDigits;
 
@@ -14,7 +15,7 @@ class NumberFormatter
 
     /** @param array<string, mixed> $options */
     public function __construct(
-        private readonly PersianNumberNormalizer $normalizer,
+        private readonly PersianNumberNormalizerContract $normalizer,
         array $options = [],
     ) {
         $this->displayDigits = $this->normalizeDigitsOption($options['display_digits'] ?? null, 'fa');

@@ -2,9 +2,10 @@
 
 namespace Zarbinco\PersianCore\Formatters;
 
-use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
+use Zarbinco\PersianCore\Contracts\MobileFormatterContract;
+use Zarbinco\PersianCore\Contracts\MobileNormalizerContract;
 
-class MobileFormatter
+class MobileFormatter implements MobileFormatterContract
 {
     private readonly string $countryCode;
 
@@ -12,7 +13,7 @@ class MobileFormatter
 
     /** @param array<string, mixed> $options */
     public function __construct(
-        private readonly MobileNormalizer $normalizer,
+        private readonly MobileNormalizerContract $normalizer,
         array $options = [],
     ) {
         $iran = is_array($options['iran'] ?? null) ? $options['iran'] : [];

@@ -2,17 +2,18 @@
 
 namespace Zarbinco\PersianCore\Support;
 
+use Zarbinco\PersianCore\Contracts\NumberFormatterContract;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
 use Zarbinco\PersianCore\Formatters\NumberFormatter;
-use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 
 class PersianNumber
 {
-    private readonly NumberFormatter $formatter;
+    private readonly NumberFormatterContract $formatter;
 
     public function __construct(
         private readonly string|int|float|null $value,
-        private readonly PersianNumberNormalizer $normalizer,
-        ?NumberFormatter $formatter = null,
+        private readonly PersianNumberNormalizerContract $normalizer,
+        ?NumberFormatterContract $formatter = null,
     ) {
         $this->formatter = $formatter ?? new NumberFormatter($normalizer);
     }

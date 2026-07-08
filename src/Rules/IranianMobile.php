@@ -4,6 +4,7 @@ namespace Zarbinco\PersianCore\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Zarbinco\PersianCore\Contracts\MobileNormalizerContract;
 use Zarbinco\PersianCore\Normalizers\MobileNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
@@ -13,7 +14,7 @@ class IranianMobile implements ValidationRule
     public bool $implicit = true;
 
     public function __construct(
-        private readonly ?MobileNormalizer $normalizer = null,
+        private readonly ?MobileNormalizerContract $normalizer = null,
         private readonly ?bool $strict = null,
     ) {}
 
@@ -38,7 +39,7 @@ class IranianMobile implements ValidationRule
         }
     }
 
-    private function normalizer(): MobileNormalizer
+    private function normalizer(): MobileNormalizerContract
     {
         return $this->normalizer ?? new MobileNormalizer(new PersianNumberNormalizer, (array) config('persian-core.mobile', []));
     }

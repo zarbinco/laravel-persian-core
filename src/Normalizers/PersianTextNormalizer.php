@@ -2,16 +2,19 @@
 
 namespace Zarbinco\PersianCore\Normalizers;
 
-use Zarbinco\PersianCore\Contracts\Normalizer;
+use Zarbinco\PersianCore\Contracts\PersianSearchNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
 
-class PersianTextNormalizer implements Normalizer
+class PersianTextNormalizer implements PersianTextNormalizerContract
 {
     /** @var array<string, mixed> */
     private array $options;
 
     /** @param array<string, mixed> $options */
-    public function __construct(array $options = [])
-    {
+    public function __construct(
+        array $options = [],
+        private readonly ?PersianSearchNormalizerContract $searchNormalizer = null,
+    ) {
         $this->options = array_replace_recursive([
             'normalize_arabic_yeh' => true,
             'normalize_arabic_kaf' => true,
@@ -93,7 +96,8 @@ class PersianTextNormalizer implements Normalizer
 
     public function forSearch(string|int|float|null $value): string
     {
-        return (new PersianSearchNormalizer(new PersianNumberNormalizer, $this->options))->normalize($value);
+        return ($this->searchNormalizer ?? new PersianSearchNormalizer(new PersianNumberNormalizer, $this->options))
+            ->normalize($value);
     }
 
     private function enabled(string $option): bool

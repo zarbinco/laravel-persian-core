@@ -11,11 +11,13 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 - Added strict validation mode with `validation.strict` enabled by default and per-rule constructor overrides.
 - Added a first-class Persian search normalizer with `Persian::search($value)->normalize()`, tokenization, and centralized `Persian::searchable($value)` behavior.
 - Added offline best-effort Iranian bank detection from card BIN/IIN values and Sheba bank codes.
+- Added official contracts for core extension points and optional bank data metadata config.
 
 ### Changed
 
 - Hardened Iranian mobile, national code, postal code, card number, Sheba, and Persian money amount rules so strict validation rejects embedded garbage text while preserving normalizer behavior.
 - Refactored search normalization paths to share deterministic text, digit, punctuation, and digit-group normalization.
+- Added contract container bindings and improved internal dependency injection while preserving existing concrete bindings and public API behavior.
 
 ### Documentation
 
@@ -27,6 +29,7 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 ### Testing
 
 - Added edge-case coverage for Persian text normalization, digit conversion, search normalization, mobile normalization, money formatting, validation rules, and offline bank detection.
+- Added tests for contract resolution, contract overriding, concrete service resolution, and bank data config metadata.
 
 ### CI
 

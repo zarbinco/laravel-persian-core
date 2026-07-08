@@ -4,6 +4,7 @@ namespace Zarbinco\PersianCore\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Zarbinco\PersianCore\Contracts\MoneyNormalizerContract;
 use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
@@ -13,7 +14,7 @@ class PersianMoneyAmount implements ValidationRule
     public bool $implicit = true;
 
     public function __construct(
-        private readonly ?MoneyNormalizer $normalizer = null,
+        private readonly ?MoneyNormalizerContract $normalizer = null,
         private readonly ?bool $strict = null,
     ) {}
 
@@ -36,7 +37,7 @@ class PersianMoneyAmount implements ValidationRule
         }
     }
 
-    private function normalizer(): MoneyNormalizer
+    private function normalizer(): MoneyNormalizerContract
     {
         return $this->normalizer ?? new MoneyNormalizer(new PersianNumberNormalizer);
     }

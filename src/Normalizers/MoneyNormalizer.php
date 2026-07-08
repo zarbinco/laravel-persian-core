@@ -2,7 +2,10 @@
 
 namespace Zarbinco\PersianCore\Normalizers;
 
-class MoneyNormalizer
+use Zarbinco\PersianCore\Contracts\MoneyNormalizerContract;
+use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
+
+class MoneyNormalizer implements MoneyNormalizerContract
 {
     /** @var array<string, string> */
     private const CURRENCY_LABELS = [
@@ -15,7 +18,7 @@ class MoneyNormalizer
     ];
 
     public function __construct(
-        private readonly PersianNumberNormalizer $numberNormalizer,
+        private readonly PersianNumberNormalizerContract $numberNormalizer,
     ) {}
 
     public function clean(string|int|float|null $value): string
