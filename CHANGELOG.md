@@ -17,7 +17,14 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 - Hardened Iranian mobile, national code, postal code, card number, Sheba, and Persian money amount rules so strict validation rejects embedded garbage text while preserving normalizer behavior.
 - Refactored search normalization paths to share deterministic text, digit, punctuation, and digit-group normalization.
 
-## [1.0.0] - 2026-06-25
+### Documentation
+
+- Added a Persian README.
+- Improved README structure, compatibility details, package boundaries, and testing/quality guidance.
+- Added GitHub metadata recommendations for repository About and Topics.
+- Added README badges for tests, Packagist version/downloads, license, and PHP requirements.
+
+## [0.1.0] - 2026-06-26
 
 ### Added
 

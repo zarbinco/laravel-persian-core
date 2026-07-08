@@ -1,8 +1,16 @@
 # Laravel Persian Core
 
-`zarbinco/laravel-persian-core` is a lightweight Laravel foundation package for Persian text, numbers, mobile, money, and validation utilities.
+[![Tests](https://github.com/zarbinco/laravel-persian-core/actions/workflows/tests.yml/badge.svg)](https://github.com/zarbinco/laravel-persian-core/actions/workflows/tests.yml)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/zarbinco/laravel-persian-core.svg)](https://packagist.org/packages/zarbinco/laravel-persian-core)
+[![Total Downloads](https://img.shields.io/packagist/dt/zarbinco/laravel-persian-core.svg)](https://packagist.org/packages/zarbinco/laravel-persian-core)
+[![License](https://img.shields.io/packagist/l/zarbinco/laravel-persian-core.svg)](LICENSE.md)
+[![PHP Version](https://img.shields.io/packagist/php-v/zarbinco/laravel-persian-core.svg)](composer.json)
 
-It gives Laravel applications a small, dependency-light base for common Persian normalization tasks without bundling business-specific features such as gateways, calendars, SMS, PDFs, or admin panels.
+`zarbinco/laravel-persian-core` is a lightweight Persian/Iranian utility foundation for Laravel applications.
+
+It handles text normalization, digit conversion, mobile normalization, money helpers, validation rules, and offline bank/card/Sheba detection. It gives Laravel applications a small, dependency-light base for common Persian and Iranian input handling without bundling business-specific features.
+
+[Read this README in Persian](README.fa.md).
 
 ## Features
 
@@ -14,8 +22,56 @@ It gives Laravel applications a small, dependency-light base for common Persian 
 - Iranian mobile normalization and masking foundation.
 - Toman/rial money parsing, formatting, and conversion helpers.
 - Laravel validation Rule objects for common Iranian/Persian inputs.
+- Offline best-effort Iranian bank detection from card BIN/IIN values and Sheba bank codes.
 - Publishable config and translation files.
 - Artisan install, doctor, and about commands.
+
+## What This Package Is Not
+
+This core package intentionally does not include:
+
+- Payment gateways, PSP integrations, or payment processing.
+- Banking verification, ownership checks, or live account/card status checks.
+- SMS sending.
+- Jalali calendar support.
+- Invoice or PDF generation.
+- Admin panels or Filament integrations.
+- Tax, Modian, accounting, or bookkeeping workflows.
+- Full-text search engines, ranking systems, stemming, fuzzy matching, or Scout/database integrations.
+- Address, province, or city databases.
+- Business-specific validation policies.
+
+## Validation vs Normalization
+
+Normalizers are designed for cleanup, formatting, conversion, and predictable storage/display/search output. Some normalizers may be permissive because they are useful for extracting or cleaning messy user input.
+
+Validators are designed for Laravel validation. They validate shape, required structure, and checksums where applicable. They do not prove real-world ownership, account existence, operator ownership, card status, or live banking status.
+
+Use normalizers when you need normalized output. Use validation rules when you need to reject invalid input. Combine validation rules with Laravel's `required` rule when a field must be present.
+
+## Bank Detection Boundaries
+
+Bank/card/Sheba detection is offline and best-effort. It uses local metadata for Iranian card BIN/IIN values and Sheba bank codes, and unknown banks return `null`.
+
+Bank detection does not prove:
+
+- Account ownership.
+- Account existence.
+- Card ownership.
+- Card status.
+- Card-to-account convertibility.
+- Whether a bank still actively issues or accepts a specific identifier.
+
+Use `IranianCardNumber` and `IranianSheba` validation rules when validation is needed. Even then, validation is limited to shape and checksum checks where applicable, not live banking verification.
+
+## Compatibility
+
+Compatibility is based on `composer.json`:
+
+- PHP `^8.2`.
+- Laravel components `^11.0`, `^12.0`, or `^13.0`.
+- Package discovery registers the service provider and facade automatically.
+- License: MIT.
 
 ## Installation
 
@@ -345,28 +401,19 @@ Other notable config groups:
 - `validation`: validation-rule strictness and empty-value behavior.
 - `developer_experience`: reserved developer-experience toggles. String macros are disabled by default.
 
-## Not Included
+## Testing / Quality
 
-This core package intentionally does not include:
-
-- Payment gateways or PSP integrations.
-- SMS sending.
-- Invoice or PDF generation.
-- Tax, Modian, or accounting workflows.
-- Filament integrations.
-- Jalali calendar support.
-- Address, province, or city databases.
-- Business-specific validation policies.
-
-## Testing
+Available Composer quality commands:
 
 ```bash
 composer validate --strict
-composer install
 composer test
 composer analyse
 composer format -- --test
+composer lint
 ```
+
+`composer test` runs PHPUnit. `composer analyse` runs PHPStan/Larastan. `composer format -- --test` runs Pint in check mode. `composer lint` runs Composer validation, PHPStan, and PHPUnit.
 
 ## Contributing
 
