@@ -55,4 +55,5 @@ jobs:
         run: composer analyse
 
       - name: Run Pint
+        if: matrix.php == '8.3' && matrix.dependencies == 'highest'
         run: composer format -- --test

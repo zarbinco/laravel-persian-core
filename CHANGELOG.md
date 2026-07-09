@@ -39,6 +39,10 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0
 - Expanded the GitHub Actions compatibility matrix to run against highest and lowest dependency sets on PHP 8.2, 8.3, and 8.4.
 - Added Composer dependency caching and aligned CI test, analysis, and style checks with the existing Composer scripts.
 
+### Fixed
+
+- Fixed GitHub Actions lowest-dependency jobs by running Pint only on the PHP 8.3 highest-dependency job while keeping tests and static analysis across the full matrix.
+
 ## [0.1.0] - 2026-06-26
 
 ### Added
