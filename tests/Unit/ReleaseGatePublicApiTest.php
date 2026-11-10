@@ -72,6 +72,43 @@ class ReleaseGatePublicApiTest extends TestCase
         $this->assertNotEmpty(ServiceProvider::pathsToPublish(PersianCoreServiceProvider::class, 'persian-core-lang'));
     }
 
+    public function test_recursive_config_merge_preserves_nested_application_overrides(): void
+    {
+        config(['persian-core.money.labels.fa.toman' => 'واحد سفارشی']);
+
+        (new PersianCoreServiceProvider($this->app))->register();
+
+        $this->assertSame('واحد سفارشی', config('persian-core.money.labels.fa.toman'));
+        $this->assertSame('ریال', config('persian-core.money.labels.fa.rial'));
+        $this->assertSame(10, config('persian-core.money.rial_to_toman_rate'));
+    }
+
+    public function test_application_can_override_a_documented_container_contract(): void
+    {
+        $customNormalizer = new class implements MoneyNormalizerContract
+        {
+            public function clean(string|int|float|null $value): string
+            {
+                return '42';
+            }
+
+            public function value(string|int|float|null $value): ?int
+            {
+                return 42;
+            }
+
+            public function detectedCurrency(string|int|float|null $value): ?string
+            {
+                return null;
+            }
+        };
+
+        $this->app->instance(MoneyNormalizerContract::class, $customNormalizer);
+        $this->app->forgetInstance(PersianManager::class);
+
+        $this->assertSame(42, $this->app->make(PersianManager::class)->money('custom')->value());
+    }
+
     /** @return array<int, string> */
     private function documentedMethods(): array
     {

@@ -6,17 +6,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  tests:
+  framework-matrix:
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.2', '8.3', '8.4']
-        dependencies: ['highest', 'lowest']
-
-    name: PHP ${{ matrix.php }} / ${{ matrix.dependencies }}
-
+        include:
+          - { laravel: 11, php: '8.2', testbench: '^9.0', dependencies: highest }
+          - { laravel: 11, php: '8.3', testbench: '^9.0', dependencies: highest }
+          - { laravel: 11, php: '8.4', testbench: '^9.0', dependencies: highest }
+          - { laravel: 12, php: '8.2', testbench: '^10.0', dependencies: highest }
+          - { laravel: 12, php: '8.3', testbench: '^10.0', dependencies: highest }
+          - { laravel: 12, php: '8.4', testbench: '^10.0', dependencies: highest }
+          - { laravel: 12, php: '8.5', testbench: '^10.0', dependencies: highest }
+          - { laravel: 13, php: '8.3', testbench: '^11.0', dependencies: highest }
+          - { laravel: 13, php: '8.4', testbench: '^11.0', dependencies: highest }
+          - { laravel: 13, php: '8.5', testbench: '^11.0', dependencies: highest }
+          - { laravel: 11, php: '8.2', testbench: '^9.0', dependencies: lowest }
+          - { laravel: 12, php: '8.2', testbench: '^10.0', dependencies: lowest }
+          - { laravel: 13, php: '8.3', testbench: '^11.0', dependencies: lowest }
+    name: Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }} / ${{ matrix.dependencies }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,34 +35,73 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+          tools: composer:v2
 
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.composer/cache/files
-          key: composer-${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.dependencies }}-${{ hashFiles('composer.json') }}
-          restore-keys: |
-            composer-${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.dependencies }}-
-            composer-${{ runner.os }}-php-${{ matrix.php }}-
-            composer-${{ runner.os }}-
-
-      - name: Install highest dependencies
-        if: matrix.dependencies == 'highest'
-        run: composer update --prefer-stable --no-interaction --no-progress
-
-      - name: Install lowest dependencies
-        if: matrix.dependencies == 'lowest'
-        run: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
-
-      - name: Validate composer
+      - name: Validate Composer manifest
         run: composer validate --strict
 
-      - name: Run tests
+      - name: Install highest compatible dependencies
+        if: matrix.dependencies == 'highest'
+        run: composer update --with="orchestra/testbench:${{ matrix.testbench }}" --with-all-dependencies --prefer-stable --no-interaction --no-progress
+
+      - name: Install lowest compatible dependencies
+        if: matrix.dependencies == 'lowest'
+        run: composer update --with="orchestra/testbench:${{ matrix.testbench }}" --with-all-dependencies --prefer-lowest --prefer-stable --no-interaction --no-progress
+
+      - name: Verify installed framework and test tooling
+        env:
+          EXPECTED_LARAVEL_MAJOR: ${{ matrix.laravel }}
+          EXPECTED_TESTBENCH_MAJOR: ${{ matrix.testbench }}
+        run: php .github/scripts/assert-compatibility.php
+
+      - name: Run complete test suite
         run: composer test
 
-      - name: Run PHPStan
+      - name: Run static analysis
         run: composer analyse
 
-      - name: Run Pint
-        if: matrix.php == '8.3' && matrix.dependencies == 'highest'
+  consumer-install:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { laravel: 11, php: '8.2' }
+          - { laravel: 12, php: '8.2' }
+          - { laravel: 13, php: '8.3' }
+    name: Laravel ${{ matrix.laravel }} consumer install / PHP ${{ matrix.php }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Install package into an isolated Laravel application
+        run: bash .github/scripts/consumer-smoke.sh "${{ matrix.laravel }}"
+
+  composer-and-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer manifest
+        run: composer validate --strict
+
+      - name: Install dependencies with pinned Pint
+        run: composer update --with="laravel/pint:1.29.3" --prefer-stable --no-interaction --no-progress
+
+      - name: Check formatting
         run: composer format -- --test

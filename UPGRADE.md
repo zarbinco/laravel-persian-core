@@ -1,30 +1,25 @@
 # Upgrade Guide
 
-## Current Unreleased Review
+## Compatibility
 
-The Phase 1-4 documentation, CI, tests, contracts, config metadata, and release-gate changes are intended to be backward-compatible.
+The package requires PHP `^8.2` and supports Illuminate components `^11.0`, `^12.0`, and `^13.0`, subject to each framework version's PHP requirements:
 
-Within Phases 1-4, no validation behavior was intentionally changed. However, the broader current `[Unreleased]` changelog includes validation hardening and strict validation mode entries. Before tagging, review those entries and document any stricter validation impact clearly in the release notes.
+| Laravel | Supported PHP versions |
+| --- | --- |
+| 11 | 8.2, 8.3, 8.4 |
+| 12 | 8.2, 8.3, 8.4, 8.5 |
+| 13 | 8.3, 8.4, 8.5 |
 
-Existing Facade and Manager APIs remain supported, including:
+Laravel 11 remains technically compatible with this package, but its upstream security support ended on March 12, 2026. Package compatibility does not extend or replace framework security support.
 
-```php
-Persian::normalize($value);
-Persian::clean($value);
-Persian::searchable($value);
-Persian::bankFromCard($value);
-Persian::bankFromSheba($value);
-```
+## Validation behavior
 
-Consumers should review the README for new optional extension contracts and informational bank data metadata.
+Validation rules allow optional empty values by default. Add Laravel's `required` rule when a field must be present. Money validation is strict by default and can use relaxed extraction when explicitly configured.
 
-The optional `bank_data` config section is metadata only. It does not enable live bank verification and does not change the documented `null` fallback for unknown bank/card/Sheba detection.
+Review the validation settings in `config/persian-core.php` when upgrading if your application relies on custom strictness or empty-value behavior.
 
-## Custom Contract Implementations
+## Extending package services
 
-Applications may override package contracts through Laravel's container. Custom implementations should preserve the documented behavior and return types expected by the contract they replace.
+Applications may replace documented package contracts through Laravel's container. Custom implementations should preserve the inputs, return types, and behavior defined by the contract they implement.
 
-## Requirements
-
-- PHP `^8.2`.
-- Laravel components `^11.0`, `^12.0`, or `^13.0`.
+The package's bank metadata is local lookup data only. It does not enable live bank verification, and unknown bank, card, or Sheba lookups continue to return `null`.
