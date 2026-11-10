@@ -71,12 +71,46 @@ class MoneyFormatter implements MoneyFormatterContract
 
     public function convertRialToToman(?int $rial): ?int
     {
-        return $rial === null ? null : intdiv($rial, $this->rialToTomanRate);
+        if ($rial === null) {
+            return null;
+        }
+
+        if ($rial === 0) {
+            return 0;
+        }
+
+        return intdiv($rial, $this->rialToTomanRate);
     }
 
     public function convertTomanToRial(?int $toman): ?int
     {
-        return $toman === null ? null : $toman * $this->rialToTomanRate;
+        if ($toman === null) {
+            return null;
+        }
+
+        if ($toman === 0) {
+            return 0;
+        }
+
+        $product = $this->safeMultiply($toman, $this->rialToTomanRate);
+
+        if ($product === null) {
+            return null;
+        }
+
+        return $product;
+    }
+
+    private function safeMultiply(int $value, int $multiplier): ?int
+    {
+        if (
+            ($value > 0 && $value > intdiv(PHP_INT_MAX, $multiplier))
+            || ($value < 0 && $value < intdiv(PHP_INT_MIN, $multiplier))
+        ) {
+            return null;
+        }
+
+        return $value * $multiplier;
     }
 
     public function defaultCurrency(): string

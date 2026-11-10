@@ -5,6 +5,7 @@ namespace Zarbinco\PersianCore\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Zarbinco\PersianCore\Contracts\PersianNumberNormalizerContract;
+use Zarbinco\PersianCore\Data\IranianBanks;
 use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\Support\Validation\StrictValidationInput;
 
@@ -12,29 +13,8 @@ class IranianCardNumber implements ValidationRule
 {
     public bool $implicit = true;
 
-    /** @var array<int, string> */
-    private const IRANIAN_BINS = [
-        '603799',
-        '589210',
-        '627648',
-        '627961',
-        '603770',
-        '639346',
-        '502229',
-        '627412',
-        '622106',
-        '610433',
-        '621986',
-        '639607',
-        '636214',
-        '502806',
-        '502908',
-        '627488',
-        '505785',
-        '505416',
-        '505801',
-        '606373',
-    ];
+    /** @var array<int, string>|null */
+    private static ?array $iranianBins = null;
 
     public function __construct(
         private readonly ?PersianNumberNormalizerContract $normalizer = null,
@@ -91,7 +71,11 @@ class IranianCardNumber implements ValidationRule
 
     private function hasIranianBin(string $digits): bool
     {
-        return in_array(substr($digits, 0, 6), self::IRANIAN_BINS, true);
+        if (self::$iranianBins === null) {
+            self::$iranianBins = IranianBanks::cardBins();
+        }
+
+        return in_array(substr($digits, 0, 6), self::$iranianBins, true);
     }
 
     private function normalizer(): PersianNumberNormalizerContract

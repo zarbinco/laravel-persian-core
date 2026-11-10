@@ -60,6 +60,10 @@ class StrictValidationModeTest extends TestCase
         $this->assertTrue($this->passes('value', 'abc1234567890def', new IranianPostalCode));
         $this->assertTrue($this->passes('value', 'abc6037990000000006def', new IranianCardNumber));
         $this->assertTrue($this->passes('value', 'abc125000def', new PersianMoneyAmount));
+        $this->assertFalse($this->passes('value', '-', new PersianMoneyAmount));
+        $this->assertFalse($this->passes('value', '- تومان', new PersianMoneyAmount));
+        $this->assertFalse($this->passes('value', '.5', new PersianMoneyAmount));
+        $this->assertTrue($this->passes('value', '۱۲ ۵۰۰ تومان', new PersianMoneyAmount));
     }
 
     public function test_relaxed_mode_can_be_enabled_by_constructor(): void
@@ -70,6 +74,9 @@ class StrictValidationModeTest extends TestCase
         $this->assertTrue($this->passes('value', 'abc6037990000000006def', new IranianCardNumber(strict: false)));
         $this->assertTrue($this->passes('value', 'IR180100000000000000000000', new IranianSheba(strict: false)));
         $this->assertTrue($this->passes('value', 'abc125000def', new PersianMoneyAmount(strict: false)));
+        $this->assertFalse($this->passes('value', '-', new PersianMoneyAmount(strict: false)));
+        $this->assertFalse($this->passes('value', '- تومان', new PersianMoneyAmount(strict: false)));
+        $this->assertFalse($this->passes('value', '-٫۵', new PersianMoneyAmount(strict: false)));
     }
 
     public function test_constructor_strict_mode_overrides_relaxed_config(): void

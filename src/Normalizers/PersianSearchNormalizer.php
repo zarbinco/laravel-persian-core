@@ -62,13 +62,11 @@ class PersianSearchNormalizer implements PersianSearchNormalizerContract
         };
 
         $text = $this->numberNormalizer->toEnglish($text);
+        $text = $this->collapseThousandsSeparators($text);
 
         if ($this->enabled('search.remove_punctuation')) {
             $text = (string) preg_replace('/[\p{P}\p{S}]+/u', ' ', $text);
         }
-
-        $text = (string) preg_replace('/(?<=\d)[,٬_](?=\d)/u', '', $text);
-        $text = (string) preg_replace('/(?<=\d)\s+(?=\d)/u', '', $text);
 
         return $this->normalizeWhitespace($text);
     }
@@ -158,6 +156,29 @@ class PersianSearchNormalizer implements PersianSearchNormalizerContract
         return is_string($value) && in_array($value, ['preserve', 'remove', 'space'], true)
             ? $value
             : 'space';
+    }
+
+    private function collapseThousandsSeparators(string $text): string
+    {
+        return (string) preg_replace_callback(
+            '/\d+(?:[,_٬]\d+)+/u',
+            static function (array $matches): string {
+                $value = $matches[0];
+
+                if (preg_match('/^\d{1,3}(?:[,_٬]\d{3})+$/u', $value) === 1) {
+                    return str_replace(['٬', ',', '_'], '', $value);
+                }
+
+                $segments = preg_split('/[,_٬]+/u', $value);
+
+                if ($segments === false) {
+                    return $value;
+                }
+
+                return implode(' ', array_values(array_filter($segments, static fn (string $segment): bool => $segment !== '')));
+            },
+            $text,
+        );
     }
 
     private function normalizeWhitespace(string $text): string

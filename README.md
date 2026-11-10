@@ -144,6 +144,8 @@ Persian::text('می‌روم')->forSearch();
 
 `normalize()` and text-only `forStorage()` stay conservative. `forDisplay()` applies display-friendly punctuation cleanup. `forSearch()` applies more aggressive search normalization such as punctuation removal and configurable ZWNJ handling.
 
+Numeric groups are only collapsed when they unambiguously form a single thousands-separated value; adjacent numeric tokens stay separated to avoid corrupting searches like "سال ۱۴۰۴ ۱۴۰۵" or "12 + 34".
+
 ## Numbers
 
 The number normalizer focuses on digit conversion. Number parsing helpers clean formatted input for numeric use.
@@ -170,6 +172,12 @@ Persian::number('۱۲۳۴۵۶۷')->format();
 Persian::number('۱۲۳۴۵۶۷')->format('en');
 // 1,234,567
 ```
+
+Money values are treated as integer-based amounts internally. Integer-equivalent decimals such as `12.0` or `۱۲٫۰۰` are accepted when they resolve exactly to the same integer value, but meaningful fractional values such as `12.5` are rejected rather than silently truncated.
+
+Money normalization can extract one amount from surrounding text, such as `Price: 1500 toman`. Inputs containing multiple or malformed numeric values are rejected instead of being partially parsed or combined. Strict validation requires the whole value to match the accepted amount format.
+
+Persian, Arabic-Indic, and ASCII digits are supported. Other Unicode digit forms are rejected. Horizontal whitespace is accepted as a thousands separator only when the groups follow the usual pattern of one to three leading digits followed by groups of three. Because `100 200` is inherently ambiguous, it follows that rule and is read as `100200`; use clear separators between separate amounts.
 
 ## Normalization Pipeline
 

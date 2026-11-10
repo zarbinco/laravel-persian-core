@@ -33,12 +33,23 @@ class PersianSearchNormalizerTest extends TestCase
     public function test_it_collapses_digit_groups(): void
     {
         $this->assertSame('12500', $this->normalizer()->normalize('۱۲,۵۰۰'));
-        $this->assertSame('12500', $this->normalizer()->normalize('۱۲ ۵۰۰'));
+        $this->assertSame('12 500', $this->normalizer()->normalize('۱۲ ۵۰۰'));
     }
 
     public function test_it_converts_persian_and_arabic_digits_to_english(): void
     {
         $this->assertSame('123456', $this->normalizer()->normalize('۱۲۳٤٥۶'));
+    }
+
+    public function test_it_keeps_separate_numeric_tokens_separate(): void
+    {
+        $this->assertSame('سال 1404 1405', $this->normalizer()->normalize('سال ۱۴۰۴ ۱۴۰۵'));
+        $this->assertSame('12 34', $this->normalizer()->normalize('12 + 34'));
+        $this->assertSame('1000 200', $this->normalizer()->normalize('1,000 200'));
+        $this->assertSame('12500 300', $this->normalizer()->normalize('12,500 300'));
+        $this->assertSame('1234 567', $this->normalizer()->normalize('1234,567'));
+        $this->assertSame('12 34 567', $this->normalizer()->normalize('12,34,567'));
+        $this->assertSame('1 23 456', $this->normalizer()->normalize('1,23,456'));
     }
 
     public function test_madda_alef_can_be_normalized_or_preserved(): void
@@ -54,7 +65,7 @@ class PersianSearchNormalizerTest extends TestCase
         $this->assertSame('کیک شکلاتی', $normalizer->normalize("كیك\u{0650} شکلاتي"));
         $this->assertSame('اب میوه سن ایچ 12500 تومان', $normalizer->normalize("آب\u{200C}میوه سن\u{200C}ایچ ۱۲,۵۰۰ تومان!"));
         $this->assertSame('کتاب های خوب', $normalizer->normalize("  کتاب\u{200C}های   خوب  "));
-        $this->assertSame('12500', $normalizer->normalize('۱۲ ۵۰۰'));
+        $this->assertSame('12 500', $normalizer->normalize('۱۲ ۵۰۰'));
         $this->assertSame('Hello دنیا', $normalizer->normalize('Hello، دنیا!'));
     }
 

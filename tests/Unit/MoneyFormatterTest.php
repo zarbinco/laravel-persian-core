@@ -4,6 +4,8 @@ namespace Zarbinco\PersianCore\Tests\Unit;
 
 use Zarbinco\PersianCore\Facades\Persian;
 use Zarbinco\PersianCore\Formatters\MoneyFormatter;
+use Zarbinco\PersianCore\Normalizers\MoneyNormalizer;
+use Zarbinco\PersianCore\Normalizers\PersianNumberNormalizer;
 use Zarbinco\PersianCore\PersianManager;
 use Zarbinco\PersianCore\Tests\TestCase;
 
@@ -32,6 +34,41 @@ class MoneyFormatterTest extends TestCase
     public function test_negative_format(): void
     {
         $this->assertSame('-1,250,000 toman', Persian::money(-1250000)->format('toman', 'en'));
+    }
+
+    public function test_conversion_boundaries_are_safe(): void
+    {
+        $formatter = new MoneyFormatter(new MoneyNormalizer(new PersianNumberNormalizer), new PersianNumberNormalizer);
+
+        $this->assertSame(1250000, Persian::money(12500000)->fromRial()->toToman());
+        $this->assertSame(12500000, Persian::money(1250000)->fromToman()->toRial());
+        $this->assertNull(Persian::money('9223372036854775808')->value());
+        $this->assertNull($formatter->convertTomanToRial(PHP_INT_MAX));
+        $this->assertSame(0, $formatter->convertTomanToRial(0));
+        $this->assertNull($formatter->convertTomanToRial(intdiv(PHP_INT_MIN, 10) - 1));
+    }
+
+    public function test_negative_boundary_rates_are_handled_portably(): void
+    {
+        $formatter = new MoneyFormatter(new MoneyNormalizer(new PersianNumberNormalizer), new PersianNumberNormalizer, ['rial_to_toman_rate' => 2]);
+        $negativeHalf = intdiv(PHP_INT_MIN, 2);
+        $this->assertSame(PHP_INT_MIN, $formatter->convertTomanToRial($negativeHalf));
+        $this->assertNull($formatter->convertTomanToRial($negativeHalf - 1));
+
+        $formatter = new MoneyFormatter(new MoneyNormalizer(new PersianNumberNormalizer), new PersianNumberNormalizer, ['rial_to_toman_rate' => 10]);
+        $negativeTenth = intdiv(PHP_INT_MIN, 10);
+        $this->assertSame($negativeTenth * 10, $formatter->convertTomanToRial($negativeTenth));
+        $this->assertNull($formatter->convertTomanToRial($negativeTenth - 1));
+
+        $formatter = new MoneyFormatter(new MoneyNormalizer(new PersianNumberNormalizer), new PersianNumberNormalizer, ['rial_to_toman_rate' => 1]);
+        $this->assertSame(PHP_INT_MIN, $formatter->convertTomanToRial(PHP_INT_MIN));
+        $this->assertSame(PHP_INT_MAX, $formatter->convertTomanToRial(PHP_INT_MAX));
+
+        $formatter = new MoneyFormatter(new MoneyNormalizer(new PersianNumberNormalizer), new PersianNumberNormalizer, ['rial_to_toman_rate' => PHP_INT_MAX]);
+        $this->assertSame(-PHP_INT_MAX, $formatter->convertTomanToRial(-1));
+        $this->assertNull($formatter->convertTomanToRial(-2));
+        $this->assertSame(PHP_INT_MAX, $formatter->convertTomanToRial(1));
+        $this->assertNull($formatter->convertTomanToRial(2));
     }
 
     public function test_from_rial_to_toman(): void

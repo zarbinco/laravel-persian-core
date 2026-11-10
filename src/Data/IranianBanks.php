@@ -201,6 +201,20 @@ final class IranianBanks
         return null;
     }
 
+    /** @return array<int, string> */
+    public static function cardBins(): array
+    {
+        $bins = [];
+
+        foreach (self::BANKS as $bank) {
+            foreach ($bank['card_bins'] as $bin) {
+                $bins[] = $bin;
+            }
+        }
+
+        return array_values(array_unique($bins));
+    }
+
     public static function slugByCardBin(string $bin): ?string
     {
         $matchedSlug = null;

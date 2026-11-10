@@ -79,7 +79,7 @@ final class StrictValidationInput
         }
 
         $currencyLabel = '(?:تومان|تومن|ریال|ريال|toman|rial)';
-        $thousandSeparator = '[\s,\x{066C}]';
+        $thousandSeparator = '[\h,\x{066C}]';
         $number = '(?:[0-9]{1,3}(?:'.$thousandSeparator.'[0-9]{3})+|[0-9]+)';
 
         return preg_match('/^[\-−]?'.$number.'(?:[\.٫][0-9]+)?(?:\s*'.$currencyLabel.')?$/iu', $value) === 1;
