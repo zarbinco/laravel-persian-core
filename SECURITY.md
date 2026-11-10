@@ -6,7 +6,7 @@ Security fixes target the latest published release line and the default branch. 
 
 ## Reporting a vulnerability
 
-If GitHub shows **Report a vulnerability** under [Security advisories](https://github.com/zarbinco/laravel-persian-core/security/advisories), use that form to report the issue privately. Keep vulnerability details out of public issues and pull requests.
+Sign in to GitHub, open [Security advisories](https://github.com/zarbinco/laravel-persian-core/security/advisories), and select **Report a vulnerability** to send a private report. Keep vulnerability details out of public issues and pull requests.
 
 Include the affected package, PHP, and Laravel versions, a minimal reproduction using sample data, and the impact you observed. Include a workaround if you know one. Remove credentials and real customer data before sharing.
 

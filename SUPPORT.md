@@ -1,6 +1,6 @@
 # Support
 
-Use [GitHub Issues](https://github.com/zarbinco/laravel-persian-core/issues) for questions, bug reports, and feature discussions. See the [compatibility table](README.md#compatibility) for the PHP and Laravel versions supported by the upcoming release.
+Use [GitHub Issues](https://github.com/zarbinco/laravel-persian-core/issues) for questions, bug reports, and feature discussions. See the [compatibility section](README.md#compatibility) for supported PHP and Laravel versions.
 
 For a bug report, include the following information.
 

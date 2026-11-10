@@ -14,7 +14,7 @@ The package covers input handling. Payment processing, live bank verification, S
 
 ## Compatibility
 
-This README describes the upcoming `v1.0.0` release. Its compatibility matrix covers the following combinations.
+The current source supports the following Laravel and PHP combinations.
 
 - Laravel 12: PHP 8.2, 8.3, 8.4, and 8.5.
 - Laravel 13: PHP 8.3, 8.4, and 8.5.
@@ -27,7 +27,7 @@ The Composer constraints are PHP `^8.2` and Illuminate `^12.0` or `^13.0`, subje
 composer require zarbinco/laravel-persian-core
 ```
 
-Laravel package discovery registers the service provider and facade automatically.
+See [Packagist](https://packagist.org/packages/zarbinco/laravel-persian-core) for the requirements of published versions. Laravel package discovery registers the service provider and facade automatically.
 
 ## Publishing
 
