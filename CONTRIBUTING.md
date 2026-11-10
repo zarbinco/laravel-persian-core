@@ -1,14 +1,14 @@
 # Contributing
 
-Thanks for considering a contribution to `zarbinco/laravel-persian-core`.
+## Local setup
 
-## Local Setup
+From the repository root, install the development dependencies.
 
 ```bash
 composer install
 ```
 
-Run the full validation suite before opening a pull request:
+Before opening a pull request, run these checks.
 
 ```bash
 composer validate --strict
@@ -17,15 +17,13 @@ composer analyse
 composer format -- --test
 ```
 
-Use `composer format` to apply Pint formatting when needed.
+`composer lint` combines Composer validation, static analysis, and tests. Use `composer format` to apply Pint formatting when needed.
 
-## Pull Requests
+## Pull requests
 
 - Keep changes focused and small enough to review.
 - Add or update tests for behavior changes.
-- Update README, CHANGELOG, and REVIEW_NOTES when user-facing behavior changes.
-- Avoid adding heavy dependencies unless they are clearly justified.
-- Keep this package focused on foundation utilities.
+- Update the relevant examples in the [English README](README.md) and [Persian README](README.fa.md) when their documented behavior changes. Record notable changes in the [changelog](CHANGELOG.md).
 
 ## Scope
 

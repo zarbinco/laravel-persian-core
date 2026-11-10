@@ -6,75 +6,20 @@
 [![License](https://img.shields.io/packagist/l/zarbinco/laravel-persian-core.svg)](LICENSE.md)
 [![PHP Version](https://img.shields.io/packagist/php-v/zarbinco/laravel-persian-core.svg)](composer.json)
 
-`zarbinco/laravel-persian-core` is a lightweight Persian/Iranian utility foundation for Laravel applications.
-
-It handles text normalization, digit conversion, mobile normalization, money helpers, validation rules, and offline bank/card/Sheba detection. It gives Laravel applications a small, dependency-light base for common Persian and Iranian input handling without bundling business-specific features.
+Laravel Persian Core normalizes Persian text, digits, and Iranian mobile numbers in Laravel applications. It also parses and formats toman and rial amounts, provides validation rules for common Iranian inputs, and looks up bank metadata from card prefixes and Sheba (Iranian IBAN) codes.
 
 [Read this README in Persian](README.fa.md).
 
-## Features
-
-- Persian and Arabic text normalization.
-- Persian, Arabic, and English digit conversion.
-- Storage, display, and search normalization pipelines.
-- First-class Persian search normalization for indexing and query cleanup.
-- Number cleaning, parsing, and formatting.
-- Iranian mobile normalization and masking foundation.
-- Toman/rial money parsing, formatting, and conversion helpers.
-- Laravel validation Rule objects for common Iranian/Persian inputs.
-- Offline best-effort Iranian bank detection from card BIN/IIN values and Sheba bank codes.
-- Publishable config and translation files.
-- Artisan install, doctor, and about commands.
-
-## What This Package Is Not
-
-This core package intentionally does not include:
-
-- Payment gateways, PSP integrations, or payment processing.
-- Banking verification, ownership checks, or live account/card status checks.
-- SMS sending.
-- Jalali calendar support.
-- Invoice or PDF generation.
-- Admin panels or Filament integrations.
-- Tax, Modian, accounting, or bookkeeping workflows.
-- Full-text search engines, ranking systems, stemming, fuzzy matching, or Scout/database integrations.
-- Address, province, or city databases.
-- Business-specific validation policies.
-
-## Validation vs Normalization
-
-Normalizers are designed for cleanup, formatting, conversion, and predictable storage/display/search output. Some normalizers may be permissive because they are useful for extracting or cleaning messy user input.
-
-Validators are designed for Laravel validation. They validate shape, required structure, and checksums where applicable. They do not prove real-world ownership, account existence, operator ownership, card status, or live banking status.
-
-Use normalizers when you need normalized output. Use validation rules when you need to reject invalid input. Combine validation rules with Laravel's `required` rule when a field must be present.
-
-## Bank Detection Boundaries
-
-Bank/card/Sheba detection is offline and best-effort. It uses local metadata for Iranian card BIN/IIN values and Sheba bank codes, and unknown banks return `null`.
-
-Bank detection does not prove:
-
-- Account ownership.
-- Account existence.
-- Card ownership.
-- Card status.
-- Card-to-account convertibility.
-- Whether a bank still actively issues or accepts a specific identifier.
-
-Use `IranianCardNumber` and `IranianSheba` validation rules when validation is needed. Even then, validation is limited to shape and checksum checks where applicable, not live banking verification.
+The package covers input handling. Payment processing, live bank verification, SMS delivery, Jalali dates, invoicing, and accounting are outside its scope.
 
 ## Compatibility
 
-The package declares compatibility with these PHP and Laravel component versions:
+This README describes the upcoming `v1.0.0` release. Its compatibility matrix covers the following combinations.
 
 - Laravel 12: PHP 8.2, 8.3, 8.4, and 8.5.
 - Laravel 13: PHP 8.3, 8.4, and 8.5.
 
-The package requires PHP `^8.2` and Illuminate components `^12.0` or `^13.0`.
-
-- Package discovery registers the service provider and facade automatically.
-- License: MIT.
+The Composer constraints are PHP `^8.2` and Illuminate `^12.0` or `^13.0`, subject to the framework's PHP requirements. For changes since the published `v0.2.0`, see the [upgrade guide](UPGRADE.md).
 
 ## Installation
 
@@ -86,15 +31,10 @@ Laravel package discovery registers the service provider and facade automaticall
 
 ## Publishing
 
-Publish the package config:
+The package loads its defaults and validation messages automatically. To customize them, publish the config to `config/persian-core.php` or the translations to `vendor/persian-core` under your app's language directory.
 
 ```bash
 php artisan vendor:publish --tag=persian-core-config
-```
-
-Publish validation translations:
-
-```bash
 php artisan vendor:publish --tag=persian-core-lang
 ```
 
@@ -147,8 +87,6 @@ Persian::text('می‌روم')->forSearch();
 
 `normalize()` and text-only `forStorage()` stay conservative. `forDisplay()` applies display-friendly punctuation cleanup. `forSearch()` applies more aggressive search normalization such as punctuation removal and configurable ZWNJ handling.
 
-Numeric groups are only collapsed when they unambiguously form a single thousands-separated value; adjacent numeric tokens stay separated to avoid corrupting searches like "سال ۱۴۰۴ ۱۴۰۵" or "12 + 34".
-
 ## Numbers
 
 The number normalizer focuses on digit conversion. Number parsing helpers clean formatted input for numeric use.
@@ -176,12 +114,6 @@ Persian::number('۱۲۳۴۵۶۷')->format('en');
 // 1,234,567
 ```
 
-Money values are treated as integer-based amounts internally. Integer-equivalent decimals such as `12.0` or `۱۲٫۰۰` are accepted when they resolve exactly to the same integer value, but meaningful fractional values such as `12.5` are rejected rather than silently truncated.
-
-Money normalization can extract one amount from surrounding text, such as `Price: 1500 toman`. Inputs containing multiple or malformed numeric values are rejected instead of being partially parsed or combined. Strict validation requires the whole value to match the accepted amount format.
-
-Persian, Arabic-Indic, and ASCII digits are supported. Other Unicode digit forms are rejected. Horizontal whitespace is accepted as a thousands separator only when the groups follow the usual pattern of one to three leading digits followed by groups of three. Because `100 200` is inherently ambiguous, it follows that rule and is read as `100200`; use clear separators between separate amounts.
-
 ## Normalization Pipeline
 
 `Persian::clean()` is an alias for storage normalization. Storage and display digit output are config-driven.
@@ -199,7 +131,7 @@ Persian::normalize('علي مبلغ ۱,۲۵۰,۰۰۰ تومان')->forSearch();
 
 ## Search Normalization
 
-Search normalization prepares deterministic text for indexing and user-query matching. It normalizes Persian/Arabic letter variants, removes diacritics and tatweel, handles ZWNJ according to config, converts Persian and Arabic digits to English, removes punctuation by default, and collapses digit groups.
+Use the same search normalization for indexed text and queries. It normalizes Persian and Arabic letter variants, removes diacritics and tatweel, and converts Persian and Arabic-Indic digits to ASCII. By default it replaces punctuation and zero-width non-joiners (ZWNJ) with spaces. It joins well-formed thousands groups such as `۱۲٬۵۰۰`, while `1,000 200` becomes `1000 200` and `12 + 34` becomes `12 34`.
 
 ```php
 Persian::search('كیكِ شکلاتي')->normalize();
@@ -212,20 +144,20 @@ Persian::search('آب‌میوه سن‌ایچ')->tokens();
 // ['اب', 'میوه', 'سن', 'ایچ']
 ```
 
-`Persian::searchable($value)` is kept as a direct string helper and uses the same search normalizer:
+`Persian::searchable($value)` returns the same normalized string directly. For example, an application can normalize a product name before writing its search column and apply the same transformation to user queries.
 
 ```php
-$model->searchable_name = Persian::search($model->name)->normalize();
-$model->save();
+$product->searchable_name = Persian::searchable($product->name);
+$product->save();
 
-$query = Persian::search($request->input('q'))->normalize();
+$query = Persian::searchable($request->string('q')->toString());
 
 Product::query()
     ->where('searchable_name', 'like', "%{$query}%")
     ->get();
 ```
 
-This is normalization for search/indexing. It is not a full-text search engine, stemming system, transliteration layer, fuzzy matcher, Scout integration, or database-specific ranking tool.
+Your application supplies the search backend, matching rules, and ranking. Search normalization works independently of Scout and database-specific search features.
 
 ## Mobile
 
@@ -248,11 +180,11 @@ Persian::mobile('09121234567')->mask();
 // 0912***4567
 ```
 
-The default mask can be changed with `mobile.iran.mask_pattern`. Invalid masks fall back safely to `0912***4567`.
+Configure masking with `mobile.iran.mask_pattern`. Invalid patterns fall back to `0912***4567`. The mobile helpers may return cleaned input when it cannot be formatted as an Iranian mobile number. Apply the `IranianMobile` rule before storing a number that must be valid or relying on the mask.
 
 ## Money
 
-Money helpers parse and format toman/rial values. They are not accounting, tax, invoice, or payment tools.
+Money helpers work with whole toman and rial amounts. `value()` returns an `int` or `null` for invalid input or an amount outside PHP's integer range.
 
 ```php
 Persian::money('۱,۲۵۰,۰۰۰ تومان')->value();
@@ -274,11 +206,15 @@ Persian::money(1250000)->fromToman()->toRial();
 // 12500000
 ```
 
-The default conversion rate is `1 toman = 10 rial` and can be changed through `money.rial_to_toman_rate`.
+The parser accepts Persian, Arabic-Indic, and ASCII digits. It accepts zero-only fractions such as `۱۲٫۰۰` and rejects nonzero fractions such as `12.5`, malformed grouping, multiple amounts, and other Unicode digit forms. It can extract one amount from surrounding text, such as `قیمت: ۱۵۰۰ تومان`. Horizontal spaces can act as thousands separators, so `100 200` is read as `100200`. The `PersianMoneyAmount` rule in strict mode requires the entire input to match the amount format.
+
+`format()` returns a string, or `''` if the input cannot be parsed. It can display valid integer strings beyond the PHP integer range. Passing a currency to `format()` selects the label. Use `toToman()` or `toRial()` to convert the integer value, or `formatToman()` and `formatRial()` to display a converted amount.
+
+The default rate is 10 rial per toman, configured through `money.rial_to_toman_rate`. Rial-to-toman conversion drops the remainder toward zero. Toman-to-rial conversion returns `null` if the result would overflow.
 
 ## Bank Detection
 
-Bank detection provides best-effort metadata from Iranian card BIN/IIN values and Sheba bank codes. It is offline-only, does not call external services, and unknown banks return `null`.
+Bank lookup uses bundled metadata for Iranian card prefixes (BIN/IIN) and Sheba bank codes. It runs offline and returns `null` when there is no match.
 
 ```php
 $bank = Persian::card('6037991234567890')->bank();
@@ -309,11 +245,11 @@ Persian::bankFromSheba('ir170170000000000000000000')?->name();
 // Bank Melli Iran
 ```
 
-Bank detection is not validation and does not prove ownership, existence, account status, or card/account convertibility. Use `IranianCardNumber` and `IranianSheba` validation rules when validation is needed.
+Use `IranianCardNumber` and `IranianSheba` to validate identifiers. Bank lookup alone checks the metadata match. Ownership, account existence, and live card or account status require a separate verification service.
 
 ## Validation
 
-The package includes Laravel validation Rule objects. Empty values pass by default, so combine these rules with Laravel's `required` rule when a field must be present.
+Use Laravel validation rules to reject bad input before normalizing it for storage or display. Empty values pass by default. Add Laravel's `required` rule when a field must be present.
 
 ```php
 use Zarbinco\PersianCore\Rules\IranianMobile;
@@ -339,16 +275,11 @@ Available rules:
 - `IranianCardNumber`
 - `PersianMoneyAmount`
 
-Validation boundaries:
-
-- `IranianMobile` checks normalized Iranian mobile shape, not operator ownership.
-- `IranianSheba` checks format and IBAN checksum, not bank account ownership.
-- `IranianCardNumber` checks shape and Luhn by default, not card ownership.
-- `PersianMoneyAmount` checks shape and parseability, not business min/max rules.
+`IranianMobile` checks Iranian mobile number structure. `IranianSheba` checks the format and IBAN checksum. `IranianCardNumber` checks the format and Luhn checksum by default. Enable `validation.iranian_card_number.require_iranian_bin` to also require a prefix in the bundled dataset. Add your application's own limits for amounts accepted by `PersianMoneyAmount`.
 
 ### Strict Validation Mode
 
-Validators are strict by default. Strict mode rejects values that only contain a valid value inside surrounding text, while normalizers remain permissive for extraction and cleanup use cases.
+Strict mode is enabled by default for the mobile, national code, postal code, card number, Sheba, and money rules. It checks the whole input and rejects extra text around an otherwise valid value.
 
 ```php
 'validation' => [
@@ -357,16 +288,19 @@ Validators are strict by default. Strict mode rejects values that only contain a
 ],
 ```
 
-For legacy behavior, disable strict validation globally or per rule:
+For fields that need relaxed input handling, change the setting globally or pass `strict` to the relevant rule. Relaxed rules still apply their underlying checks.
 
 ```php
+use Zarbinco\PersianCore\Rules\IranianCardNumber;
+use Zarbinco\PersianCore\Rules\IranianMobile;
+
 config(['persian-core.validation.strict' => false]);
 
 new IranianMobile(strict: false);
 new IranianCardNumber(strict: true);
 ```
 
-Strict validation still accepts Persian, Arabic, and English digits plus common separators for full values such as `0912-123-4567`, `6037 9900 0000 0006`, `IR18 0100 0000 0000 0000 0000 00`, and `۱,۲۵۰,۰۰۰ تومان`.
+Strict validation accepts Persian, Arabic-Indic, and ASCII digits in supported formats, such as `0912-123-4567`, `6037 9900 0000 0006`, `IR18 0100 0000 0000 0000 0000 00`, and `۱,۲۵۰,۰۰۰ تومان`.
 
 ## Artisan Commands
 
@@ -408,14 +342,12 @@ Other notable config groups:
 - `text`: base text cleanup plus display/search normalization behavior.
 - `mobile`: Iranian mobile country code, national prefix, and mask pattern.
 - `money`: default currency, labels, display digits, separators, and conversion rate.
-- `banks`: bank detection behavior documentation toggles.
-- `bank_data`: informational metadata for the bundled offline bank dataset.
+- `banks` and `bank_data`: informational settings for the bundled offline bank dataset.
 - `validation`: validation-rule strictness and empty-value behavior.
-- `developer_experience`: reserved developer-experience toggles. String macros are disabled by default.
 
 ## Extending / Overriding Services
 
-Core services are bound to small contracts so applications can override implementation details through Laravel's container:
+Core services are bound to contracts so applications can supply their own implementations. Register the binding in your service provider before the facade or manager is first resolved.
 
 ```php
 use App\Support\CustomTextNormalizer;
@@ -424,29 +356,11 @@ use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
 $this->app->bind(PersianTextNormalizerContract::class, CustomTextNormalizer::class);
 ```
 
-Custom implementations should preserve the documented behavior and return types expected by the contract. Bank detection remains offline metadata-based unless your application explicitly replaces it with its own service.
+Custom implementations should preserve the inputs, return types, and documented behavior of the contract.
 
-## Testing / Quality
+## Support and contributions
 
-Available Composer quality commands:
-
-```bash
-composer validate --strict
-composer test
-composer analyse
-composer format -- --test
-composer lint
-```
-
-`composer test` runs PHPUnit. `composer analyse` runs PHPStan/Larastan. `composer format -- --test` runs Pint in check mode. `composer lint` runs Composer validation, PHPStan, and PHPUnit.
-
-## Contributing
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, coding style, and pull request expectations.
-
-## Security
-
-Please see [SECURITY.md](SECURITY.md) for supported versions and vulnerability reporting.
+See the [support guide](SUPPORT.md) for bug reports, the [security policy](SECURITY.md) for vulnerability reports, and the [contributing guide](CONTRIBUTING.md) for local setup and quality checks.
 
 ## License
 

@@ -1,5 +1,7 @@
 /.github export-ignore
 /tests export-ignore
+/docs/github-metadata.md export-ignore
+/docs/release-gate.md export-ignore
 /vendor export-ignore
 /node_modules export-ignore
 /composer.lock export-ignore

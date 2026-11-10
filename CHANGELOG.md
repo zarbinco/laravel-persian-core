@@ -1,77 +1,52 @@
 # Changelog
 
-All notable changes to `zarbinco/laravel-persian-core` will be documented in this file.
+## Unreleased
 
-The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows semantic versioning after the first stable release.
+### Removed
 
-## [Unreleased]
-
-### Added
-
-- Added strict validation mode with `validation.strict` enabled by default and per-rule constructor overrides.
-- Added a first-class Persian search normalizer with `Persian::search($value)->normalize()`, tokenization, and centralized `Persian::searchable($value)` behavior.
-- Added offline best-effort Iranian bank detection from card BIN/IIN values and Sheba bank codes.
-- Added official contracts for core extension points and optional bank data metadata config.
+- Dropped Laravel 11 support. The package now targets Laravel 12 on PHP 8.2–8.5 and Laravel 13 on PHP 8.3–8.5.
 
 ### Changed
 
-- Hardened Iranian mobile, national code, postal code, card number, Sheba, and Persian money amount rules so strict validation rejects embedded garbage text while preserving normalizer behavior.
-- Refactored search normalization paths to share deterministic text, digit, punctuation, and digit-group normalization.
-- Added contract container bindings and improved internal dependency injection while preserving existing concrete bindings and public API behavior.
-
-### Documentation
-
-- Added a Persian README.
-- Improved README structure, compatibility details, package boundaries, and testing/quality guidance.
-- Added GitHub metadata recommendations for repository About and Topics.
-- Added README badges for tests, Packagist version/downloads, license, and PHP requirements.
-- Added release-gate checklist and consumer smoke-test guidance.
-- Audited release-facing documentation and updated upgrade/security guidance so it does not imply an unpublished `v1.0.0` release.
-
-### Testing
-
-- Added edge-case coverage for Persian text normalization, digit conversion, search normalization, mobile normalization, money formatting, validation rules, and offline bank detection.
-- Added tests for contract resolution, contract overriding, concrete service resolution, and bank data config metadata.
-- Added a release-gate public API regression test for documented facade methods, validation rules, contracts, and publish tags.
-
-### CI
-
-- Expanded the GitHub Actions compatibility matrix to run against highest and lowest dependency sets on PHP 8.2, 8.3, and 8.4.
-- Added Composer dependency caching and aligned CI test, analysis, and style checks with the existing Composer scripts.
+- When Iranian BIN validation is enabled, `IranianCardNumber` now uses the same bundled BIN list as the default offline bank lookup. The accepted prefixes have changed. The default Luhn check still applies.
+- CI now checks the Laravel 12 and 13 dependency sets explicitly and verifies production installs in fresh applications.
 
 ### Fixed
 
-- Fixed GitHub Actions lowest-dependency jobs by running Pint only on the PHP 8.3 highest-dependency job while keeping tests and static analysis across the full matrix.
+- Money parsing rejects nonzero fractions, malformed grouping, multiple amounts and unsupported Unicode digits. It still accepts whole amounts written with a zero-only fractional part, such as `۱۲٫۰۰`.
+- Currency detection matches whole labels and rejects inputs with more than one currency label.
+- `Persian::money($input)->value()` and toman-to-rial conversion return `null` when the result falls outside PHP's integer range.
+- Search normalization keeps adjacent numbers separate, including numbers separated by whitespace or operators. Correctly grouped values such as `۱۲٬۵۰۰` still normalize to `12500`.
+
+## [0.2.0] - 2026-07-09
+
+### Added
+
+- Added strict validation by default, with a configuration setting and per-rule overrides. Strict rules reject values such as a mobile number embedded in surrounding text.
+- Added `Persian::search()` for search normalization and tokenization. `Persian::searchable()` and the normalization pipeline share the same search behavior.
+- Added offline Iranian bank lookup by card BIN/IIN and Sheba bank code.
+- Added container contracts for replacing normalizers, formatters and bank lookup, and configuration for bank data metadata.
+- Added a Persian README and expanded regression coverage for the documented public API.
+
+### Changed
+
+- Expanded CI to exercise highest and lowest dependency versions on PHP 8.2, 8.3 and 8.4.
 
 ## [0.1.0] - 2026-06-26
 
 ### Added
 
-- Added Laravel package skeleton, service provider, auto-discovery, facade alias, and publishable config.
-- Added Persian text normalization for Arabic Yeh/Kaf conversion, diacritic removal, tatweel removal, invisible-character cleanup, whitespace normalization, and ZWNJ preservation.
-- Added Persian number normalization for English, Persian, and Arabic digit conversion.
-- Added config-driven storage and display normalization pipeline behavior.
-- Added display and search normalization modes.
-- Added fluent APIs for text, number, mobile, money, and combined normalization.
-- Added number cleaning, parsing, integer/float conversion, digit extraction, and formatting helpers.
-- Added Iranian mobile normalization, national/international/E.164 formatting, and configurable masking foundation.
-- Added toman/rial money parsing, formatting, label configuration, display digits, and conversion helpers.
-- Added Laravel validation Rule objects for Persian text, Persian alpha, Persian alpha-numeric, Iranian mobile, Iranian national code, Iranian postal code, Iranian Sheba, Iranian card number, and Persian money amounts.
-- Added English and Persian validation translation files.
-- Added package install, doctor, and about Artisan commands.
-- Added config validation support used by the doctor command.
-- Added PHPUnit, PHPStan/Larastan, Pint, and GitHub Actions workflow.
-- Added release-readiness documentation, contribution, support, security, upgrade, and release checklist files.
-
-### Changed
-
-- Improved README documentation for installation, publishing, usage, configuration, validation boundaries, testing, and exclusions.
-- Improved package metadata for Packagist readiness.
-- Improved CI to run Composer validation, PHPUnit, PHPStan, and Pint across PHP 8.2, 8.3, and 8.4.
-- Improved mobile mask config behavior so explicit masks take priority, valid config masks are respected, and invalid config masks fall back safely.
-- Improved Sheba validation to require exact normalized length and avoid unsafe auto-padding.
+- Added Persian text and digit normalization, including storage, display and search output.
+- Added number parsing and formatting, Iranian mobile formatting and masking, and toman/rial parsing, formatting and conversion.
+- Added Laravel validation rules for Persian text and common Iranian identifiers, with English and Persian messages.
+- Added Laravel package discovery, the `Persian` facade, publishable configuration, and the `persian-core:install`, `persian-core:doctor` and `persian-core:about` commands.
 
 ### Fixed
 
-- Fixed the Phase 1 pipeline design gap so number digit config values are used for storage and display normalization.
-- Fixed edge-case coverage for null input, Arabic diacritics, tatweel, invisible characters, and ZWNJ preservation.
+- Applied the configured digit style to storage and display normalization.
+- Required the exact normalized length for Sheba validation, without padding short inputs.
+- Made an explicit mobile mask take precedence over the configured mask and restored the default when the configuration is invalid.
+- Preserved zero-width non-joiners during basic text normalization.
+
+[0.2.0]: https://github.com/zarbinco/laravel-persian-core/releases/tag/v0.2.0
+[0.1.0]: https://github.com/zarbinco/laravel-persian-core/releases/tag/v0.1.0

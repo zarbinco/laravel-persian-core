@@ -1,182 +1,47 @@
-# Release Gate
+# Verifying a release
 
-This document is a release candidate checklist for `zarbinco/laravel-persian-core`. It does not claim that a release has happened and does not require a specific next tag.
+## Compatibility
 
-## Release Readiness Checklist
+| Laravel | PHP | Testbench |
+| --- | --- | --- |
+| 12 | 8.2, 8.3, 8.4, 8.5 | 10 |
+| 13 | 8.3, 8.4, 8.5 | 11 |
 
-- Confirm the working tree contains only intended release changes.
-- Confirm `composer.json` package metadata, PHP constraint, Laravel component constraints, support URLs, and license are correct.
-- Confirm `README.md`, `README.fa.md`, `CHANGELOG.md`, `UPGRADE.md`, `SECURITY.md`, and `SUPPORT.md` do not claim an unpublished release.
-- Confirm README badges point to existing resources, especially `.github/workflows/tests.yml`.
-- Confirm `config/persian-core.php` contains only backward-compatible defaults.
-- Confirm all public Facade and Manager APIs documented in README still work.
-- Confirm validation rules keep their documented strict/empty-value behavior.
-- Confirm offline bank/card/Sheba detection still returns documented best-effort metadata or `null`.
-- Confirm GitHub repository About and Topics are set manually from `docs/github-metadata.md`.
+The [test workflow](../.github/workflows/tests.yml) runs tests and static analysis with the highest compatible dependencies for each combination. It also checks the lowest dependencies and installs the package in a fresh application on the minimum PHP version for each Laravel major. Pint runs in a separate job with a pinned version.
 
-## Required Commands Before Tagging
+## Local checks
 
-Run these from the package root:
+Run these commands from the package root with development dependencies installed.
 
 ```bash
 composer validate --strict
-composer run-script --list
+composer diagnose
 composer test
 composer analyse
 composer format -- --test
+composer lint
+composer audit
 ```
 
-Run dependency-mode checks when practical:
+Use the same PHP and Testbench versions as the workflow when reproducing a matrix job locally. Keep the generated `composer.lock` out of the package repository.
+
+Run the consumer checks from the package root in a Bash environment with PHP and Composer on `PATH`. Use PHP 8.2 or later for Laravel 12 and PHP 8.3 or later for Laravel 13.
 
 ```bash
-composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
-composer test
-composer analyse
-composer format -- --test
-composer update --prefer-stable --no-interaction --no-progress
+bash .github/scripts/consumer-smoke.sh 12
+bash .github/scripts/consumer-smoke.sh 13
 ```
 
-If the package is intentionally kept without `composer.lock`, remove any generated lock file after local dependency checks.
+The script installs the local checkout through a Composer path repository in a disposable Laravel app. It checks package discovery, provider and facade resolution, contract bindings, validation, publishing, Artisan commands, and configuration caching without using a published version of the package.
 
-## Manual GitHub Metadata Checklist
+## Before tagging
 
-Set these manually in the GitHub repository sidebar:
-
-- About text from `docs/github-metadata.md`.
-- Topics from `docs/github-metadata.md`.
-- Repository homepage or package URL if desired.
-- Security policy visibility.
-- Issue and pull request settings.
-
-## Packagist And GitHub Release Checklist
-
-Before tagging:
-
-- Confirm the next version number.
-- Confirm `CHANGELOG.md` still has an `[Unreleased]` section.
-- Move only the intended unreleased entries into a release heading during the actual release commit.
-- Create the git tag only after review.
-- Push the tag to GitHub.
-- Confirm Packagist receives the tag.
-- Confirm the GitHub Actions workflow passes for the tag.
-- Draft GitHub release notes from the changelog.
-
-## Compatibility Matrix Summary
-
-The package constraints currently target:
-
-| Runtime | Supported Range |
-| --- | --- |
-| PHP | `^8.2` |
-| Laravel components | `^11.0`, `^12.0`, `^13.0` |
-| CI PHP versions | `8.2`, `8.3`, `8.4` |
-| CI dependency modes | highest, lowest |
-
-Do not advertise a Laravel version as supported unless dependency resolution and CI pass for it.
-
-## Public API Stability Checklist
-
-Before tagging, confirm these remain available:
-
-```php
-Persian::normalize($value);
-Persian::clean($value);
-Persian::searchable($value);
-Persian::search($value);
-Persian::text($value);
-Persian::number($value);
-Persian::mobile($value);
-Persian::money($value);
-Persian::card($value);
-Persian::sheba($value);
-Persian::bankFromCard($value);
-Persian::bankFromSheba($value);
-```
-
-Also confirm the documented validation rules and extension contracts resolve as expected.
-
-## Known Non-Goals
-
-This package is not:
-
-- A payment gateway or PSP integration.
-- A live banking verification service.
-- An SMS package.
-- A Jalali calendar package.
-- A PDF or invoice generator.
-- An admin panel.
-- An accounting, tax, or Modian workflow package.
-- A full-text search engine.
-
-## Bank Detection Disclaimer
-
-Bank/card/Sheba detection is offline and best-effort. It does not prove account ownership, account existence, card ownership, card status, card-to-account convertibility, or live banking status.
-
-## Consumer Smoke-Test Instructions
-
-Run smoke tests in fresh Laravel applications outside this repository.
-
-### Laravel 11
+Review the changelog, [upgrade guide](../UPGRADE.md), and [security policy](../SECURITY.md). Verify that GitHub accepts private vulnerability reports and that all workflow jobs pass on the exact commit you intend to tag.
 
 ```bash
-composer create-project laravel/laravel:^11.0 persian-core-smoke-11
-cd persian-core-smoke-11
-composer require zarbinco/laravel-persian-core:dev-main
-php artisan vendor:publish --tag=persian-core-config
-php artisan vendor:publish --tag=persian-core-lang
-php artisan about
-php artisan tinker
+git archive --format=zip --output=persian-core-dist.zip HEAD
 ```
 
-Inside Tinker:
+Inspect the archive for `composer.json`, `src/`, `config/`, `resources/lang/`, the license, and the consumer documentation. Check that the archive excludes the test suite, CI, and maintainer-only documents. `HEAD` refers to the committed tree. Repeat this check after any release commit changes.
 
-```php
-use Zarbinco\PersianCore\Contracts\PersianTextNormalizerContract;
-use Zarbinco\PersianCore\Facades\Persian;
-use Zarbinco\PersianCore\Rules\IranianMobile;
-
-Persian::text('علي كاظمي')->normalize();
-Persian::number('۱۲۳٤٥۶')->toEnglish();
-Persian::mobile('۰۹۱۲ ۱۲۳ ۴۵۶۷')->international();
-Persian::bankFromCard('6037991234567890')?->slug();
-app(PersianTextNormalizerContract::class)->normalize('علي');
-validator(['mobile' => '09121234567'], ['mobile' => [new IranianMobile]])->passes();
-```
-
-### Laravel 12
-
-```bash
-composer create-project laravel/laravel:^12.0 persian-core-smoke-12
-cd persian-core-smoke-12
-composer require zarbinco/laravel-persian-core:dev-main
-php artisan vendor:publish --tag=persian-core-config
-php artisan vendor:publish --tag=persian-core-lang
-php artisan tinker
-```
-
-Repeat the Tinker checks from the Laravel 11 smoke test.
-
-### Laravel 13
-
-Laravel 13 is included in the current Composer constraints. Test it only if dependency resolution supports it in your environment:
-
-```bash
-composer create-project laravel/laravel:^13.0 persian-core-smoke-13
-cd persian-core-smoke-13
-composer require zarbinco/laravel-persian-core:dev-main
-php artisan vendor:publish --tag=persian-core-config
-php artisan vendor:publish --tag=persian-core-lang
-php artisan tinker
-```
-
-Repeat the Tinker checks from the Laravel 11 smoke test.
-
-## Suggested Versioning Options
-
-The maintainer should choose the next public tag based on release intent:
-
-- `v0.2.0` for a pre-stable minor release with documentation, CI, contracts, and release-gate improvements.
-- `v0.3.0` if the maintainer wants one more pre-stable cycle before a stable tag.
-- `v1.0.0` only if the maintainer decides the public API is stable and ready for a first stable release.
-
-Do not tag `v1.0.0` unless that stable-release decision has been made explicitly.
+After tagging and publishing, confirm that Packagist lists the version and that a fresh application can install the stable tag.
