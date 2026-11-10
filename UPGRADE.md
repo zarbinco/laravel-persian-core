@@ -2,15 +2,12 @@
 
 ## Compatibility
 
-The package requires PHP `^8.2` and supports Illuminate components `^11.0`, `^12.0`, and `^13.0`, subject to each framework version's PHP requirements:
+The package requires PHP `^8.2` and supports Illuminate components `^12.0` and `^13.0`, subject to each framework version's PHP requirements:
 
 | Laravel | Supported PHP versions |
 | --- | --- |
-| 11 | 8.2, 8.3, 8.4 |
 | 12 | 8.2, 8.3, 8.4, 8.5 |
 | 13 | 8.3, 8.4, 8.5 |
-
-Laravel 11 remains technically compatible with this package, but its upstream security support ended on March 12, 2026. Package compatibility does not extend or replace framework security support.
 
 ## Validation behavior
 

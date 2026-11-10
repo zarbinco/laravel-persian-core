@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
@@ -158,8 +159,24 @@ foreach (['persian-core:install', 'persian-core:doctor', 'persian-core:about'] a
     }
 }
 
+$request = Illuminate\Http\Request::create('/');
+$httpKernel = $app->make(HttpKernel::class);
+$response = $httpKernel->handle($request);
+$httpKernel->terminate($request, $response);
+
+if ($response->getStatusCode() !== 200) {
+    throw new RuntimeException("HTTP application boot returned status {$response->getStatusCode()}.");
+}
+
+$app['config']->set('persian-core.money.default_currency', 'invalid');
+$doctorStatus = Artisan::call('persian-core:doctor');
+
+if ($doctorStatus !== 1) {
+    throw new RuntimeException('Doctor command did not reject deliberately invalid package configuration.');
+}
+
 printf(
-    "Consumer verified: Laravel %s; PHP %s; package %s from %s; no-dev install; provider, facade, contracts, rules and translations passed.\n",
+    "Consumer verified: Laravel %s; PHP %s; package %s from %s; no-dev install; HTTP/console boot, provider, facade, contracts, rules and translations passed.\n",
     $frameworkVersion,
     PHP_VERSION,
     $packageVersion,

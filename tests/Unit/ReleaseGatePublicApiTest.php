@@ -94,7 +94,7 @@ class ReleaseGatePublicApiTest extends TestCase
 
             public function value(string|int|float|null $value): ?int
             {
-                return 42;
+                return $value === 'custom' ? 42 : null;
             }
 
             public function detectedCurrency(string|int|float|null $value): ?string

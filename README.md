@@ -68,11 +68,10 @@ Use `IranianCardNumber` and `IranianSheba` validation rules when validation is n
 
 The package declares compatibility with these PHP and Laravel component versions:
 
-- Laravel 11: PHP 8.2, 8.3, and 8.4.
 - Laravel 12: PHP 8.2, 8.3, 8.4, and 8.5.
 - Laravel 13: PHP 8.3, 8.4, and 8.5.
 
-The package requires PHP `^8.2` and Illuminate components `^11.0`, `^12.0`, or `^13.0`. Laravel 11 remains within the package's technical compatibility range, but Laravel's upstream security support for Laravel 11 ended on March 12, 2026. Choose a Laravel release that is still receiving upstream security updates for new applications.
+The package requires PHP `^8.2` and Illuminate components `^12.0` or `^13.0`.
 
 - Package discovery registers the service provider and facade automatically.
 - License: MIT.

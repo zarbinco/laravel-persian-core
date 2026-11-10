@@ -12,9 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { laravel: 11, php: '8.2', testbench: '^9.0', dependencies: highest }
-          - { laravel: 11, php: '8.3', testbench: '^9.0', dependencies: highest }
-          - { laravel: 11, php: '8.4', testbench: '^9.0', dependencies: highest }
           - { laravel: 12, php: '8.2', testbench: '^10.0', dependencies: highest }
           - { laravel: 12, php: '8.3', testbench: '^10.0', dependencies: highest }
           - { laravel: 12, php: '8.4', testbench: '^10.0', dependencies: highest }
@@ -22,7 +19,6 @@ jobs:
           - { laravel: 13, php: '8.3', testbench: '^11.0', dependencies: highest }
           - { laravel: 13, php: '8.4', testbench: '^11.0', dependencies: highest }
           - { laravel: 13, php: '8.5', testbench: '^11.0', dependencies: highest }
-          - { laravel: 11, php: '8.2', testbench: '^9.0', dependencies: lowest }
           - { laravel: 12, php: '8.2', testbench: '^10.0', dependencies: lowest }
           - { laravel: 13, php: '8.3', testbench: '^11.0', dependencies: lowest }
     name: Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }} / ${{ matrix.dependencies }}
@@ -66,7 +62,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { laravel: 11, php: '8.2' }
           - { laravel: 12, php: '8.2' }
           - { laravel: 13, php: '8.3' }
     name: Laravel ${{ matrix.laravel }} consumer install / PHP ${{ matrix.php }}

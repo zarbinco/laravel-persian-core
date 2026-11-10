@@ -45,6 +45,9 @@ composer require \
 
 composer install --no-dev --no-interaction --no-progress --prefer-dist
 
+test ! -f config/persian-core.php
+test ! -e lang/vendor/persian-core
+
 php "$package_root/.github/scripts/verify-consumer.php" "$app_dir"
 
 php artisan list --raw | grep -E '^persian-core:install[[:space:]]'
